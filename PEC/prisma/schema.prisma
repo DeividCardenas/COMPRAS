@@ -1,0 +1,153 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL_LOCAL")
+}
+
+model Usuario {
+  id_usuario Int    @id @default(autoincrement()) @map("id_usuario")
+  username   String @unique @map("nombre_usuario")
+  email      String @unique
+  password   String
+  id_rol     Int    @map("rol_id")
+  rol        Rol    @relation(fields: [id_rol], references: [id_rol], onDelete: Cascade)
+
+  createdAt DateTime @default(now()) @map("fecha_creacion")
+  updatedAt DateTime @updatedAt @map("fecha_actualizacion")
+}
+
+model Rol {
+  id_rol   Int            @id @default(autoincrement()) @map("id_rol")
+  nombre   String         @unique
+  permisos PermisoOnRol[]
+  usuarios Usuario[]
+
+  createdAt DateTime @default(now()) @map("fecha_creacion")
+  updatedAt DateTime @updatedAt @map("fecha_actualizacion")
+}
+
+model Permiso {
+  id_permiso Int                  @id @default(autoincrement()) @map("id_permiso")
+  nombre     String               @unique
+  roles      PermisoOnRol[]
+  tarifarios PermisoOnTarifario[]
+
+  createdAt DateTime @default(now()) @map("fecha_creacion")
+  updatedAt DateTime @updatedAt @map("fecha_actualizacion")
+}
+
+model PermisoOnRol {
+  id_rol     Int      @map("rol_id")
+  id_permiso Int      @map("permiso_id")
+  rol        Rol      @relation(fields: [id_rol], references: [id_rol], onDelete: Cascade)
+  permiso    Permiso  @relation(fields: [id_permiso], references: [id_permiso], onDelete: Cascade)
+  createdAt  DateTime @default(now()) @map("fecha_creacion")
+  updatedAt  DateTime @updatedAt @map("fecha_actualizacion")
+
+  @@id([id_rol, id_permiso])
+}
+
+model PermisoOnTarifario {
+  id_permiso   Int       @map("permiso_id")
+  id_tarifario Int       @map("tarifario_id")
+  descripcion  String
+  permiso      Permiso   @relation(fields: [id_permiso], references: [id_permiso], onDelete: Cascade)
+  tarifario    Tarifario @relation(fields: [id_tarifario], references: [id_tarifario], onDelete: Cascade)
+  createdAt    DateTime  @default(now()) @map("fecha_creacion")
+  updatedAt    DateTime  @updatedAt @map("fecha_actualizacion")
+
+  @@id([id_permiso, id_tarifario])
+}
+
+model Empresa {
+  id_empresa   Int                    @id @default(autoincrement()) @map("id_empresa")
+  nombre       String                 @unique
+  laboratorios EmpresaOnLaboratorio[]
+  tarifarios   Tarifario[]
+
+  createdAt DateTime @default(now()) @map("fecha_creacion")
+  updatedAt DateTime @updatedAt @map("fecha_actualizacion")
+}
+
+model EmpresaOnLaboratorio {
+  id_empresa     Int         @map("empresa_id")
+  id_laboratorio Int         @map("laboratorio_id")
+  empresa        Empresa     @relation(fields: [id_empresa], references: [id_empresa], onDelete: Cascade)
+  laboratorio    Laboratorio @relation(fields: [id_laboratorio], references: [id_laboratorio], onDelete: Cascade)
+  createdAt      DateTime    @default(now()) @map("fecha_creacion")
+  updatedAt      DateTime    @updatedAt @map("fecha_actualizacion")
+
+  @@id([id_empresa, id_laboratorio])
+}
+
+model Laboratorio {
+  id_laboratorio Int    @id @default(autoincrement()) @map("id_laboratorio")
+  nombre         String
+
+  productos Producto[]
+  empresas  EmpresaOnLaboratorio[]
+
+  createdAt DateTime @default(now()) @map("fecha_creacion")
+  updatedAt DateTime @updatedAt @map("fecha_actualizacion")
+}
+
+model EPS {
+  id_eps     Int         @id @default(autoincrement()) @map("id_eps")
+  nombre     String      @unique
+  tarifarios Tarifario[]
+
+  createdAt DateTime @default(now()) @map("fecha_creacion")
+  updatedAt DateTime @updatedAt @map("fecha_actualizacion")
+}
+
+model Tarifario {
+  id_tarifario Int                   @id @default(autoincrement()) @map("id_tarifario")
+  nombre       String                @unique
+  id_eps       Int?                  @map("eps_id")
+  id_empresa   Int?                  @map("empresa_id")
+  eps          EPS?                  @relation(fields: [id_eps], references: [id_eps], onDelete: Cascade)
+  empresa      Empresa?              @relation(fields: [id_empresa], references: [id_empresa], onDelete: Cascade)
+  productos    TarifarioOnProducto[]
+  permisos     PermisoOnTarifario[]
+
+  createdAt DateTime @default(now()) @map("fecha_creacion")
+  updatedAt DateTime @updatedAt @map("fecha_actualizacion")
+}
+
+model TarifarioOnProducto {
+  id_tarifario   Int       @map("tarifario_id")
+  id_producto    Int       @map("producto_id")
+  precio         Int
+  precio_unidad  Int
+  precio_empaque Int
+  tarifario      Tarifario @relation(fields: [id_tarifario], references: [id_tarifario], onDelete: Cascade)
+  producto       Producto  @relation(fields: [id_producto], references: [id_producto], onDelete: Cascade)
+  createdAt      DateTime  @default(now()) @map("fecha_creacion")
+  updatedAt      DateTime  @updatedAt @map("fecha_actualizacion")
+
+  @@id([id_tarifario, id_producto])
+}
+
+model Producto {
+  id_producto        Int    @id @default(autoincrement()) @map("id_producto")
+  codigo_magister    String @unique
+  cum_pactado        String @unique
+  descripcion        String
+  principio_activo   String
+  concentracion      String
+  registro_sanitario String @unique
+  id_laboratorio     Int    @map("laboratorio_id")
+  costo_compra       Int
+  regulacion_tableta Int?
+  regulacion_empaque Int?
+
+  laboratorio Laboratorio           @relation(fields: [id_laboratorio], references: [id_laboratorio])
+  tarifarios  TarifarioOnProducto[]
+
+  createdAt DateTime @default(now()) @map("fecha_creacion")
+  updatedAt DateTime @updatedAt @map("fecha_actualizacion")
+}
