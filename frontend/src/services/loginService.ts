@@ -1,4 +1,4 @@
-import axiosInstance, { setBaseURL } from "./axiosInstance";
+import { axiosInstance, setBaseURL } from "./axiosInstance";
 import axios from "axios";
 
 interface LoginResponse {

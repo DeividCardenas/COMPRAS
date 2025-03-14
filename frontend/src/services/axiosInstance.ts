@@ -1,9 +1,9 @@
 import axios from 'axios';
 
 // Crea una instancia de Axios con la base URL común
-const axiosInstance = axios.create({
-  baseURL: '',  // Esta propiedad se actualizará según el endpoint de cada servicio
-  timeout: 10000,  // Tiempo máximo de espera para las peticiones
+export const axiosInstance = axios.create({
+  baseURL: import.meta.env.VITE_API_URL, // Usa la variable de entorno
+  timeout: 10000, 
   headers: {
     'Content-Type': 'application/json',
   },
@@ -11,78 +11,51 @@ const axiosInstance = axios.create({
 
 // Función para actualizar dinámicamente la baseURL
 export const setBaseURL = (service: string) => {
+  const baseURL = import.meta.env.VITE_API_URL;
+  
+  if (!baseURL) {
+    console.error('La variable VITE_API_URL no está definida');
+    return;
+  }
+
   switch (service) {
     case 'usuario':
-      axiosInstance.defaults.baseURL = 'http://localhost:2000/pec/usuario';
+      axiosInstance.defaults.baseURL = `${baseURL}/usuario`;
       break;
     case 'rol':
-      axiosInstance.defaults.baseURL = 'http://localhost:2000/pec/rol';
+      axiosInstance.defaults.baseURL = `${baseURL}/rol`;
       break;
     case 'permiso':
-      axiosInstance.defaults.baseURL = 'http://localhost:2000/pec/permiso';
+      axiosInstance.defaults.baseURL = `${baseURL}/permiso`;
       break;
     case 'permiso-rol':
-      axiosInstance.defaults.baseURL = 'http://localhost:2000/pec/permiso-rol';
+      axiosInstance.defaults.baseURL = `${baseURL}/permiso-rol`;
       break;
     case 'producto':
-      axiosInstance.defaults.baseURL = 'http://localhost:2000/pec/producto';
+      axiosInstance.defaults.baseURL = `${baseURL}/producto`;
       break;
     case 'empresa':
-      axiosInstance.defaults.baseURL = 'http://localhost:2000/pec/empresa';
+      axiosInstance.defaults.baseURL = `${baseURL}/empresa`;
       break;
     case 'laboratorio':
-      axiosInstance.defaults.baseURL = 'http://localhost:2000/pec/laboratorio';
+      axiosInstance.defaults.baseURL = `${baseURL}/laboratorio`;
       break;
     case 'empresa-laboratorio':
-      axiosInstance.defaults.baseURL = 'http://localhost:2000/pec/empresa-laboratorio';
+      axiosInstance.defaults.baseURL = `${baseURL}/empresa-laboratorio`;
       break;
     case 'eps':
-      axiosInstance.defaults.baseURL = 'http://localhost:2000/pec/eps';
+      axiosInstance.defaults.baseURL = `${baseURL}/eps`;
       break;
     case 'tarifario':
-      axiosInstance.defaults.baseURL = 'http://localhost:2000/pec/tarifario';
+      axiosInstance.defaults.baseURL = `${baseURL}/tarifario`;
       break;
     case 'permiso-tarifario':
-      axiosInstance.defaults.baseURL = 'http://localhost:2000/pec/permiso-tarifario';
+      axiosInstance.defaults.baseURL = `${baseURL}/permiso-tarifario`;
       break;
     case 'tarifario-producto':
-      axiosInstance.defaults.baseURL = 'http://localhost:2000/pec/tarifario-producto';
-    break;  
+      axiosInstance.defaults.baseURL = `${baseURL}/tarifario-producto`;
+      break;
     default:
       console.error('Servicio no encontrado');
   }
 };
-
-// Interceptor de solicitud para añadir el token JWT si está disponible
-axiosInstance.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('token'); // O de sessionStorage si prefieres
-    if (token) {
-      config.headers['Authorization'] = `Bearer ${token}`; // Añadimos el token en las cabeceras
-    }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(new Error(error));
-  }
-);
-
-// Interceptor de respuesta para manejar errores globales
-axiosInstance.interceptors.response.use(
-  (response) => {
-    return response;
-  },
-  (error) => {
-    // Puedes manejar diferentes tipos de errores aquí (por ejemplo, redirección en caso de 401)
-    if (error.response?.status === 401) {
-      // Redirigir a la página de login si el token no es válido
-      window.location.href = '/login';
-    } else if (error.response?.status === 500) {
-      // Mostrar un mensaje de error genérico si el servidor falla
-      alert('Hubo un error en el servidor. Por favor, inténtelo más tarde.');
-    }
-    return Promise.reject(new Error(error.message || 'Unknown error'));
-  }
-);
-
-export default axiosInstance;

@@ -1,4 +1,5 @@
-import axiosInstance, { setBaseURL } from "./axiosInstance";
+import { axiosInstance, setBaseURL } from "./axiosInstance";
+
 
 // Definir un tipo para los parámetros de búsqueda de EPS
 export interface EPSParams {
