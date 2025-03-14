@@ -1,7 +1,7 @@
 import React from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css"; 
+import "react-toastify/dist/ReactToastify.css";
 
 import Login from "./pages/Login";
 import Menu from "./pages/Menu";
@@ -16,20 +16,29 @@ import EmpresaDetalles from "./pages/EmpresaDetalles";
 const App: React.FC = () => {
   return (
     <Router>
-      <Routes>
-        <Route path="/" element={<Login />} />
-        <Route path="/Menu" element={<Menu />} />
-        <Route path="/Productos" element={<Productos />} />
-        <Route path="/laboratorios/:laboratorioId/productos" element={<LaboratorioDetalles />} />
-        <Route path="/Proveedores" element={<Proveedores />} />
-        <Route path="/Empresas" element={<EmpresasPage />} />
-        <Route path="/EPS" element={<EPSPage />} />
-        <Route path="/tarifarios/:tarifarioId/productos" element={<TarifariosPage />} />
-        <Route path="/Empresa/:id_empresa" element={<EmpresaDetalles />} />
-      </Routes>
+      <div className="min-h-screen bg-gray-100">
+        <Routes>
+          <Route path="/" element={<Login />} />
+          <Route
+            path="/*"
+            element={
+              <Routes>
+                <Route path="/Menu" element={<Menu />} />
+                <Route path="/Productos" element={<Productos />} />
+                <Route path="/laboratorio/:laboratorioId" element={<LaboratorioDetalles />} />
+                <Route path="/Proveedores" element={<Proveedores />} />
+                <Route path="/Empresas" element={<EmpresasPage />} />
+                <Route path="/EPS" element={<EPSPage />} />
+                <Route path="/tarifario/:id_tarifario" element={<TarifariosPage />} />
+                <Route path="/Empresa/:id_empresa" element={<EmpresaDetalles />} />
+              </Routes>
+            }
+          />
+        </Routes>
 
-      {/* Agregamos ToastContainer aquí para que funcione en toda la app */}
-      <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} newestOnTop />
+        {/* Toasts para notificaciones */}
+        <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} newestOnTop />
+      </div>
     </Router>
   );
 };

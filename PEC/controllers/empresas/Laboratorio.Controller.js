@@ -1,5 +1,6 @@
-const { PrismaClient } = require("@prisma/client");
-const { body, param, query, validationResult } = require("express-validator");
+import { PrismaClient } from "@prisma/client";
+import { body, param, query, validationResult } from "express-validator";
+import ExcelJS from "exceljs";
 const prisma = new PrismaClient();
 
 /**
@@ -77,26 +78,89 @@ const MostrarLaboratorios = async (req, res) => {
     }
 };
 
-// Obtener un laboratorio por ID
+// Obtener un laboratorio por ID con productos filtrados y paginados
 const MostrarLaboratorio = async (req, res) => {
-    await Promise.all(validarIdLaboratorio.map(validation => validation.run(req)));
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        return res.status(400).json({ errores: errors.array() });
-    }
-    
-    const { id_laboratorio } = req.params;
     try {
+        // Validar ID del laboratorio
+        await Promise.all(validarIdLaboratorio.map(validation => validation.run(req)));
+        const errors = validationResult(req);
+
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ errores: errors.array() });
+        }
+
+        const { id_laboratorio } = req.params;
+
+        // Validar que id_laboratorio sea un número válido
+        const laboratorioId = Number(id_laboratorio);
+        if (isNaN(laboratorioId) || laboratorioId <= 0) {
+            return res.status(400).json({ msg: "ID de laboratorio inválido" });
+        }
+
+        // Paginación y filtros
+        const { page = 1, limit = 10, codigo_magister, cum_pactado, descripcion, principio_activo, concentracion, registro_sanitario, con_regulacion } = req.query;
+
+        const numeroPagina = parseInt(page, 10) || 1;
+        const tamanoPagina = parseInt(limit, 10) || 10;
+        const skip = (numeroPagina - 1) * tamanoPagina;
+
+        // Construir condiciones para los productos
+        const condiciones = { id_laboratorio: laboratorioId };
+
+        if (codigo_magister) condiciones.codigo_magister = { contains: codigo_magister };
+        if (cum_pactado) condiciones.cum_pactado = { contains: cum_pactado };
+        if (descripcion) condiciones.descripcion = { contains: descripcion };
+        if (principio_activo) condiciones.principio_activo = { contains: principio_activo };
+        if (concentracion) condiciones.concentracion = { contains: concentracion };
+        if (registro_sanitario) condiciones.registro_sanitario = { contains: registro_sanitario };
+
+        if (con_regulacion === "regulados") {
+            condiciones.OR = [
+                { regulacion_tableta: { not: null } },
+                { regulacion_empaque: { not: null } },
+            ];
+        } else if (con_regulacion === "no_regulados") {
+            condiciones.AND = [
+                { regulacion_tableta: null },
+                { regulacion_empaque: null },
+            ];
+        }
+
+        // Buscar laboratorio y productos
         const laboratorio = await prisma.laboratorio.findUnique({
-            where: { id_laboratorio: Number(id_laboratorio) },
-            include: { productos: true, empresas: true },
+            where: { id_laboratorio: laboratorioId }
         });
-        if (!laboratorio) return res.status(404).json({ msg: "Laboratorio no encontrado" });
-        res.json(laboratorio);
+
+        if (!laboratorio) {
+            return res.status(404).json({ msg: "Laboratorio no encontrado" });
+        }
+
+        const totalProductos = await prisma.producto.count({ where: condiciones });
+        const productos = await prisma.producto.findMany({
+            where: condiciones,
+            include: {},
+            take: tamanoPagina,
+            skip,
+        });
+
+        // Responder con la información completa
+        res.status(200).json({
+            laboratorio,
+            productos: {
+                totalProductos,
+                totalPaginas: Math.ceil(totalProductos / tamanoPagina),
+                paginaActual: numeroPagina,
+                tamanoPagina,
+                lista: productos,
+            },
+        });
+
     } catch (error) {
-        res.status(500).json({ msg: "Error al obtener el laboratorio", error });
+        console.error("Error al obtener el laboratorio con productos:", error);
+        res.status(500).json({ msg: "Error interno del servidor al obtener el laboratorio", error: error.message });
     }
 };
+
 
 // Crear un laboratorio
 const CrearLaboratorio = async (req, res) => {
@@ -157,10 +221,100 @@ const EliminarLaboratorio = async (req, res) => {
     }
 };
 
-module.exports = {
+const exportarProductosLaboratorio = async (req, res) => {
+    const { id_laboratorio } = req.params;
+
+    try {
+        const idLaboratorio = Number(id_laboratorio);
+        if (isNaN(idLaboratorio)) {
+            return res.status(400).json({ mensaje: "ID de laboratorio inválido" });
+        }
+
+        const laboratorio = await prisma.laboratorio.findUnique({
+            where: { id_laboratorio: idLaboratorio },
+            select: {
+                id_laboratorio: true,
+                nombre: true,
+                productos: {
+                    select: {
+                        descripcion: true,
+                        principio_activo: true,
+                        concentracion: true,
+                        registro_sanitario: true,
+                        cum_pactado: true,
+                        costo_compra: true,
+                        regulacion_tableta: true,
+                        regulacion_empaque: true,
+                    },
+                },
+            },
+        });
+
+        if (!laboratorio) {
+            return res.status(404).json({ mensaje: "Laboratorio no encontrado" });
+        }
+
+        if (laboratorio.productos.length === 0) {
+            return res.status(404).json({ mensaje: "No hay productos en este laboratorio" });
+        }
+
+        // Crear el archivo Excel
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet(laboratorio.nombre);
+
+        // Encabezados de la tabla
+        const encabezados = [
+            "Descripción del Producto",
+            "Principio Activo",
+            "Concentración",
+            "Registro Sanitario",
+            "CUM Pactado",
+            "Costo de Compra (COP)",
+            "Regulación Tableta",
+            "Regulación Empaque",
+        ];
+        worksheet.addRow(encabezados);
+
+        // Llenar filas con los productos
+        laboratorio.productos.forEach((producto) => {
+            const fila = [
+                producto.descripcion ?? "Sin descripción",
+                producto.principio_activo || "",
+                producto.concentracion || "",
+                producto.registro_sanitario || "",
+                producto.cum_pactado || "",
+                producto.costo_compra ?? 0,
+                producto.regulacion_tableta ?? "N/A",
+                producto.regulacion_empaque ?? "N/A",
+            ];
+            worksheet.addRow(fila);
+        });
+
+        // Configurar encabezados para la descarga
+        const nombreArchivo = `productos_${laboratorio.nombre.replace(/[^a-zA-Z0-9-_]/g, "_")}`;
+        res.setHeader(
+            "Content-Type",
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        );
+        res.setHeader(
+            "Content-Disposition",
+            `attachment; filename="${nombreArchivo}_productos.xlsx"`
+        );
+
+        // Enviar el archivo Excel como respuesta
+        await workbook.xlsx.write(res);
+        if (!res.finished) res.end();
+    } catch (error) {
+        console.error("Error al exportar productos del laboratorio:", error);
+        res.status(500).json({ mensaje: "Error interno del servidor" });
+    }
+};
+
+export  {
     MostrarLaboratorios,
     MostrarLaboratorio,
     CrearLaboratorio,
     EditarLaboratorio,
     EliminarLaboratorio,
+    exportarProductosLaboratorio
 };

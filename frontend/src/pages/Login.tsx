@@ -22,6 +22,7 @@ const Login: React.FC = () => {
       setUser(usuario);
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(usuario));
+      localStorage.setItem("tarifarios", JSON.stringify(usuario.tarifarios)); // Guardar tarifarios
 
       navigate("/Menu");
     } catch (err) {

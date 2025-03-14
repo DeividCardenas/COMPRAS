@@ -18,7 +18,8 @@ class Server {
   }
 
   routes() {
-    this.app.use(this.path + "Usuario", require("../routes/auth/Usuario.Routes"));
+    this.app.use(this.path + "usuario", require("../routes/auth/Usuario.Routes"));
+    this.app.use(this.path + "token", require("../routes/auth/token.Routes"));
     this.app.use(this.path + "rol", require("../routes/roles/Rol.routes"));
     this.app.use(this.path + "permiso", require("../routes/roles/Permiso.routes"));
     this.app.use(this.path + "permiso-rol", require("../routes/roles/PermisoOnRol.routes"));

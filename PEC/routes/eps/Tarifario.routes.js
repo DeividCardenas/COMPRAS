@@ -7,50 +7,76 @@
  */
 
 const { Router } = require("express");
+const { check } = require("express-validator");
+
 const { 
     MostrarTarifarios, 
     MostrarTarifarioPorId, 
     CrearTarifario, 
     EditarTarifario, 
-    EliminarTarifario, 
-    validarTarifario, 
-    validarIdTarifario
+    EliminarTarifario,
+    exportarTarifario,
+    exportarTarifarioSimplificado
 } = require("../../controllers/eps/Tarifario.Controller");
-const { check } = require("express-validator");
+
+const { 
+    validarTarifario, 
+    validarIdTarifario 
+} = require("../../middlewares/validaciones");
+
+const { VerificarAcceso } = require("../../middlewares/authMiddleware");
 
 const router = Router();
 
 /* ========================== Tarifarios ========================== */
 
+// Obtener todos los tarifarios con paginación y búsqueda
 router.get(
     "/", 
-    [check("page").optional().isInt({ min: 1 }).withMessage("La página debe ser un número entero mayor a 0"),
-     check("limit").optional().isInt({ min: 1 }).withMessage("El límite debe ser un número entero mayor a 0")],
+    [
+        check("page").optional().isInt({ min: 1 }).withMessage("La página debe ser un número entero mayor a 0"),
+        check("limit").optional().isInt({ min: 1 }).withMessage("El límite debe ser un número entero mayor a 0")
+    ],
     MostrarTarifarios
-); // Obtener todos los tarifarios con paginación y búsqueda
+);
 
+// Obtener un tarifario por ID
 router.get(
-    "/:id_tarifario", 
-    validarIdTarifario, 
+    "/:id_tarifario",
     MostrarTarifarioPorId
-); // Obtener un tarifario por ID
+);
 
 router.post(
     "/", 
+    VerificarAcceso({ rolesPermitidos: ["admin"], permisosRequeridos: ["crear_tarifario"] }), 
     validarTarifario, 
     CrearTarifario
-); // Crear un nuevo tarifario
+);
 
 router.put(
     "/:id_tarifario", 
+    VerificarAcceso({ 
+        rolesPermitidos: ["admin", "editor"], 
+        permisosRequeridos: ["editar_tarifario"],
+        verificarTarifario: true // Verifica que pueda editar ese tarifario específico
+    }), 
     [...validarIdTarifario, ...validarTarifario], 
     EditarTarifario
-); // Editar un tarifario por ID
+);
 
 router.delete(
     "/:id_tarifario", 
+    VerificarAcceso({ 
+        rolesPermitidos: ["admin"], 
+        permisosRequeridos: ["eliminar_tarifario"],
+        verificarTarifario: true // Verifica que pueda eliminar ese tarifario específico
+    }), 
     validarIdTarifario, 
     EliminarTarifario
-); // Eliminar un tarifario por ID
+);
+
+router.post('/:id_tarifario/exportar', exportarTarifario);
+router.get('/:id_tarifario/exportar-simplificado', exportarTarifarioSimplificado);
+
 
 module.exports = router;

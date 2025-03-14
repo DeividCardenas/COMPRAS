@@ -14,7 +14,8 @@ const {
     MostrarLaboratorio, 
     CrearLaboratorio, 
     EditarLaboratorio, 
-    EliminarLaboratorio 
+    EliminarLaboratorio,
+    exportarProductosLaboratorio
 } = require("../../controllers/empresas/Laboratorio.Controller");
 
 /* ========================== Laboratorios ========================== */
@@ -24,5 +25,6 @@ router.get("/:id_laboratorio", MostrarLaboratorio);       // Obtener un laborato
 router.post("/", CrearLaboratorio);                       // Crear un nuevo laboratorio
 router.put("/:id_laboratorio", EditarLaboratorio);        // Editar un laboratorio por ID
 router.delete("/:id_laboratorio", EliminarLaboratorio);   // Eliminar un laboratorio por ID
+router.get("/:id_laboratorio/exportar", exportarProductosLaboratorio); // Exportar productos de un laboratorio
 
 module.exports = router;

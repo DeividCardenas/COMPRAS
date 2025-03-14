@@ -50,23 +50,29 @@ const MostrarEmpresas = async (req, res) => {
                 laboratorios: {
                     include: {
                         laboratorio: {
-                            select: { nombre: true },
+                            select: { id_laboratorio: true, nombre: true },
                         },
                     },
                 },
                 tarifarios: {
-                    select: { nombre: true },
+                    select: { id_tarifario: true, nombre: true },
                 },
             },
             skip,
             take: pageSize,
         });
 
-        // Formatear laboratorios y tarifarios
+        // Formatear laboratorios y tarifarios con id y nombre
         const formattedEmpresas = empresas.map((empresa) => ({
             ...empresa,
-            laboratorios: empresa.laboratorios.map((lab) => lab.laboratorio.nombre),
-            tarifarios: empresa.tarifarios.map((tarifario) => tarifario.nombre),
+            laboratorios: empresa.laboratorios.map((lab) => ({
+                id_laboratorio: lab.laboratorio.id_laboratorio,
+                nombre: lab.laboratorio.nombre,
+            })),
+            tarifarios: empresa.tarifarios.map((tarifario) => ({
+                id_tarifario: tarifario.id_tarifario,
+                nombre: tarifario.nombre,
+            })),
         }));
 
         const totalEmpresas = await prisma.empresa.count({

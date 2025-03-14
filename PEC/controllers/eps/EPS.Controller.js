@@ -26,47 +26,85 @@ const validarIdEps = [
 // Mostrar todas las EPS con paginación y filtro por nombre
 const MostrarEps = async (req, res) => {
     try {
-        await query("page").optional().isInt({ min: 1 }).toInt().run(req);
-        await query("limit").optional().isInt({ min: 1, max: 100 }).toInt().run(req);
-        await query("nombre").optional().trim().run(req);
-
+        // Validar errores de la solicitud
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             return res.status(400).json({ errores: errors.array() });
         }
 
-        const { page = 1, limit = 10, nombre = "" } = req.query;
+        // Obtener parámetros de consulta con valores por defecto
+        const { 
+            page = 1, 
+            limit = 10, 
+            nombre = "", 
+            orden = "nombre", 
+            direccion = "asc" 
+        } = req.query;
+
+        // Convertir a números para la paginación
         const pageNumber = parseInt(page, 10);
         const pageSize = parseInt(limit, 10);
         const skip = (pageNumber - 1) * pageSize;
 
-        const epsList = await prisma.ePS.findMany({
-            where: {
-                nombre: {
-                    contains: nombre,
-                },
-            },
-            include: { tarifarios: { select: { nombre: true } } },
-            skip,
-            take: pageSize,
-        });
+        // Validar que los valores de paginación sean válidos
+        if (pageNumber < 1 || pageSize < 1) {
+            return res.status(400).json({ msg: "La página y el límite deben ser números mayores a 0." });
+        }
 
-        const totalEps = await prisma.ePS.count({
-            where: {
-                nombre: {
-                    contains: nombre,
+        // Obtener las EPS y el total en una transacción para mayor eficiencia
+        const [epsList, totalEps] = await prisma.$transaction([
+            prisma.ePS.findMany({
+                where: {
+                    nombre: {
+                        contains: nombre
+                    },
                 },
-            },
-        });
+                include: {
+                    tarifarios: {
+                        select: {
+                            id_tarifario: true,
+                            nombre: true,
+                        },
+                    },
+                },
+                skip,
+                take: pageSize,
+                orderBy: {
+                    [orden]: direccion === "desc" ? "desc" : "asc",
+                },
+            }),
+            prisma.ePS.count({
+                where: {
+                    nombre: {
+                        contains: nombre
+                    },
+                },
+            }),
+        ]);
 
+        // Verificar si no se encontraron resultados
+        if (epsList.length === 0) {
+            return res.status(404).json({ msg: "No se encontraron EPS que coincidan con la búsqueda." });
+        }
+
+        // Respuesta paginada con los datos de EPS y sus tarifarios
         res.json({
             total: totalEps,
-            page: pageNumber,
-            limit: pageSize,
-            data: epsList,
+            pagina_actual: pageNumber,
+            total_paginas: Math.ceil(totalEps / pageSize),
+            limite: pageSize,
+            eps: epsList.map((eps) => ({
+                id_eps: eps.id_eps,
+                nombre: eps.nombre,
+                tarifarios: eps.tarifarios.map((tarifario) => ({
+                    id_tarifario: tarifario.id_tarifario,
+                    nombre: tarifario.nombre,
+                })),
+            })),
         });
     } catch (error) {
-        res.status(500).json({ msg: "Error al obtener las EPS", error });
+        // Manejar errores inesperados
+        res.status(500).json({ msg: "Error al obtener las EPS", error: error.message });
     }
 };
 

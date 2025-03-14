@@ -1,13 +1,12 @@
 import axiosInstance, { setBaseURL } from "./axiosInstance";
+import axios from "axios";
 
-// Definir un tipo para los parámetros de búsqueda de empresas
 export interface EmpresaParams {
   page?: number;
   limit?: number;
   nombre?: string;
 }
 
-// Definir la interfaz para los objetos relacionados
 export interface Laboratorio {
   id_laboratorio: number;
   nombre: string;
@@ -18,7 +17,6 @@ export interface Tarifario {
   nombre: string;
 }
 
-// Definir la interfaz para la estructura de una empresa
 export interface Empresa {
   id_empresa: number;
   nombre: string;
@@ -26,7 +24,6 @@ export interface Empresa {
   tarifarios: Tarifario[];
 }
 
-// Definir la estructura de la respuesta esperada de la API para empresas
 interface EmpresaResponse {
   total: number;
   page: number;
@@ -34,7 +31,12 @@ interface EmpresaResponse {
   data: Empresa[];
 }
 
-// Función para obtener empresas con filtros y paginación
+const limpiarParametros = (params: Record<string, string | number | undefined>) => {
+  return Object.fromEntries(
+    Object.entries(params).filter(([ v]) => v !== undefined && v !== null)
+  );
+};
+
 export const fetchEmpresas = async (
   filters: Partial<EmpresaParams>
 ): Promise<EmpresaResponse> => {
@@ -43,14 +45,24 @@ export const fetchEmpresas = async (
   try {
     const params: Record<string, string | number | undefined> = {
       ...filters,
-      page: filters.page ?? 1,
-      limit: filters.limit ?? 10,
+      page: Math.max(filters.page ?? 1, 1),
+      limit: Math.min(Math.max(filters.limit ?? 10, 1), 100),
     };
 
-    const response = await axiosInstance.get<EmpresaResponse>("/", { params });
+    const cleanedParams = limpiarParametros(params);
+
+    const response = await axiosInstance.get<EmpresaResponse>("/", {
+      params: cleanedParams,
+    });
+
     return response.data;
   } catch (error) {
-    console.error("Error al obtener empresas:", error);
-    throw new Error("No se pudo obtener las empresas");
+    if (axios.isAxiosError(error)) {
+      console.error("Error de Axios al obtener empresas:", error.response?.data || error.message);
+      throw new Error(error.response?.data?.msg || "No se pudo obtener las empresas");
+    } else {
+      console.error("Error desconocido al obtener empresas:", error);
+      throw new Error("Error inesperado al obtener las empresas");
+    }
   }
 };

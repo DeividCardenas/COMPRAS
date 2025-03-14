@@ -8,6 +8,7 @@ interface LoginResponse {
     email: string;
     rol: string;
     permisos: string[];
+    tarifarios: number[]; // Añadimos los tarifarios
   };
   userJWT: string;
 }
@@ -17,7 +18,14 @@ export const loginUser = async (
   password: string
 ): Promise<{
   token: string;
-  usuario: { id: number; username: string; email: string; rol: string; permisos: string[] };
+  usuario: { 
+    id: number; 
+    username: string; 
+    email: string; 
+    rol: string; 
+    permisos: string[];
+    tarifarios: number[]; 
+  };
 }> => {
   setBaseURL("usuario"); // Ajuste de la base URL para autenticación
 
@@ -33,6 +41,7 @@ export const loginUser = async (
         email: usuario.email,
         rol: usuario.rol,
         permisos: usuario.permisos,
+        tarifarios: usuario.tarifarios, // Añadimos los tarifarios al objeto devuelto
       },
     };
   } catch (error) {

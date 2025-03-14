@@ -5,15 +5,23 @@ export interface EPSParams {
   page?: number;
   limit?: number;
   nombre?: string;
+  orden?: string;
+  direccion?: 'asc' | 'desc';
+}
+
+// Definir la interfaz para la relación entre Tarifario y Producto
+export interface TarifarioOnProducto {
+  id_tarifario: number;
+  id_producto: number;
+  precio: number;
+  precio_unidad: number;
+  precio_empaque: number;
 }
 
 // Definir la interfaz para los Tarifarios
 export interface Tarifario {
   id_tarifario: number;
   nombre: string;
-  epsId: number;
-  eps: EPS;
-  productos: TarifarioOnProducto[]; // Asegúrate de que este campo es relevante
 }
 
 // Definir la interfaz para las EPS
@@ -26,24 +34,29 @@ export interface EPS {
 // Definir la estructura de la respuesta esperada de la API para EPS
 interface EPSResponse {
   total: number;
-  page: number;
-  limit: number;
+  pagina_actual: number;
+  total_paginas: number;
+  limite: number;
   eps: EPS[];
 }
 
-// Función para obtener EPS con filtros y paginación
+// Función para obtener EPS con filtros, paginación y ordenamiento
 export const fetchEPS = async (
   filters: Partial<EPSParams>
 ): Promise<EPSResponse> => {
-  setBaseURL("EPS");
+  setBaseURL("eps");
 
   try {
+    // Configurar los parámetros de la solicitud
     const params: Record<string, string | number | undefined> = {
       ...filters,
       page: filters.page ?? 1,
       limit: filters.limit ?? 10,
+      orden: filters.orden ?? 'nombre',
+      direccion: filters.direccion ?? 'asc',
     };
 
+    // Realizar la solicitud a la API
     const response = await axiosInstance.get<EPSResponse>("/", { params });
 
     // Verificar que la respuesta contiene los datos esperados
@@ -57,10 +70,3 @@ export const fetchEPS = async (
     throw new Error("No se pudo obtener las EPS");
   }
 };
-
-// Definir la interfaz para la relación entre Tarifario y Producto
-export interface TarifarioOnProducto {
-  id_tarifario: number;
-  id_producto: number;
-  // otros campos si es necesario
-}

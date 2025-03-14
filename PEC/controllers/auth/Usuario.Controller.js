@@ -106,6 +106,7 @@ const EliminarUsuario = async (req = request, res = response) => {
 };
 
 // Iniciar sesión (Login)
+// Iniciar sesión (Login)
 const Login = async (req, res) => {
     let { email, password } = req.body;
 
@@ -116,7 +117,17 @@ const Login = async (req, res) => {
                 rol: {
                     include: {
                         permisos: {
-                            include: { permiso: true }
+                            include: {
+                                permiso: {
+                                    include: {
+                                        tarifarios: {
+                                            include: {
+                                                tarifario: true
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -133,14 +144,20 @@ const Login = async (req, res) => {
             return res.status(400).json({ msg: "Contraseña incorrecta" });
         }
 
-        // Extraer permisos (asegurando que siempre sea un array)
+        // Extraer permisos
         const permisos = usuario.rol.permisos?.map(p => p.permiso.nombre) || [];
+        
+        // Extraer tarifarios permitidos desde los permisos
+        const tarifarios = usuario.rol.permisos?.flatMap(p => 
+            p.permiso.tarifarios.map(pt => pt.id_tarifario)
+        ) || [];
 
-        // Crear token JWT incluyendo permisos
+        // Crear token JWT incluyendo permisos y tarifarios
         const userJWT = CreateJWT({ 
             id_usuario: usuario.id_usuario,
             rol: usuario.rol.nombre,
-            permisos
+            permisos,
+            tarifarios
         });
 
         res.json({
@@ -149,7 +166,8 @@ const Login = async (req, res) => {
                 username: usuario.username, 
                 email: usuario.email, 
                 rol: usuario.rol.nombre, 
-                permisos 
+                permisos,
+                tarifarios
             },
             userJWT
         });

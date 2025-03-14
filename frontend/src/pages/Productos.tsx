@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
 import { fetchProductos, Producto, ProductParams } from "../services/productosService";
-import { downloadReporte } from "../services/funcionesService";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
 import { toast } from "react-toastify";
@@ -13,7 +12,6 @@ const Productos = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
-  const [downloading, setDownloading] = useState(false);
 
   const itemsPerPage = 10;
 
@@ -23,18 +21,18 @@ const Productos = () => {
       const filters: Partial<ProductParams> = {
         page: currentPage,
         limit: itemsPerPage,
-        con_regulacion: 
+        con_regulacion:
           selectedFilterRegulacion === "regulados" || selectedFilterRegulacion === "no_regulados"
             ? selectedFilterRegulacion
             : undefined,
       };
-  
+
       if (selectedFilter && search) {
         if (["descripcion", "codigo_magister", "cum_pactado"].includes(selectedFilter)) {
           (filters as Record<string, string>)[selectedFilter] = search;
         }
       }
-  
+
       const fetchedProductos = await fetchProductos(filters);
       setProductos(fetchedProductos.productos);
       setTotalPages(fetchedProductos.totalPaginas);
@@ -51,20 +49,8 @@ const Productos = () => {
     fetchProductosData();
   }, [fetchProductosData]);
 
-  const handleDownload = async () => {
-    setDownloading(true);
-    try {
-      await downloadReporte();
-      toast.success("Reporte descargado correctamente");
-    } catch (error) {
-      console.error("Error al descargar el reporte:", error);
-      toast.error("Hubo un error al descargar el reporte");
-    } finally {
-      setDownloading(false);
-    }
-  };
-
   return (
+
     <div className="relative p-4 bg-sky-900 min-h-screen flex flex-col">
       {/* Filtros */}
       <div className="mb-4 flex flex-wrap gap-4 items-center">
@@ -102,19 +88,6 @@ const Productos = () => {
         </select>
       </div>
 
-      {/* Botón de descarga */}
-      <div className="absolute top-4 right-4 z-10">
-        <button
-          onClick={handleDownload}
-          disabled={downloading}
-          className={`py-2 px-4 text-white rounded-md mb-4 transition duration-300 ${
-            downloading ? "bg-gray-500 cursor-not-allowed" : "bg-blue-950 hover:bg-gray-400"
-          }`}
-        >
-          {downloading ? "Descargando..." : "Descargar Reporte"}
-        </button>
-      </div>
-
       {/* Paginación */}
       <div className="flex justify-between items-center mb-4 text-sm w-full">
         <button onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))} className={`py-2 px-3 bg-blue-950 hover:bg-gray-400 text-white rounded-md ${currentPage === 1 ? "invisible" : ""}`} style={{ width: "100px" }}>
@@ -136,11 +109,14 @@ const Productos = () => {
       ) : (
         <div className="overflow-x-auto shadow-lg rounded-lg">
           <table className="min-w-full text-sm">
-            <thead className="p-3 border-b text-center text-white bg-blue-950">
+            <thead className="p-3 border-b text-center text-white bg-indigo-900">
               <tr>
-                <th className="p-2">Descripción</th>
                 <th className="p-2">Código Magister</th>
                 <th className="p-2">CUM Pactado</th>
+                <th className="p-2">Laboratorio</th>
+                <th className="p-2">Descripción</th>
+                <th className="p-2">Principio Activo</th>
+                <th className="p-2">Concentración</th>
                 <th className="p-2">Costo Compra</th>
                 {selectedFilterRegulacion === "regulados" && <th className="p-2">Regulación</th>}
               </tr>
@@ -149,9 +125,12 @@ const Productos = () => {
               {productos.length > 0 ? (
                 productos.map((producto) => (
                   <tr key={producto.id_producto} className="hover:bg-violet-300">
-                    <td className="p-2 text-center">{producto.descripcion}</td>
                     <td className="p-2 text-center">{producto.codigo_magister ?? "-"}</td>
                     <td className="p-2 text-center">{producto.cum_pactado ?? "-"}</td>
+                    <td className="p-2 text-center">{producto.laboratorio?.nombre}</td>
+                    <td className="p-2 text-center">{producto.descripcion}</td>
+                    <td className="p-2 text-center">{producto.principio_activo}</td>
+                    <td className="p-2 text-center">{producto.concentracion ?? "-"}</td>
                     <td className="p-2 text-center">
                       {new Intl.NumberFormat("es-CO", {
                         style: "currency",
@@ -161,9 +140,26 @@ const Productos = () => {
                     {selectedFilterRegulacion === "regulados" && (
                       <td className="p-2 text-center">
                         {producto.regulacion_tableta || producto.regulacion_empaque ? (
-                          <span>
-                            Tableta: {producto.regulacion_tableta ?? "-"} | Empaque: {producto.regulacion_empaque ?? "-"}
-                          </span>
+                          <div className="flex items-center justify-center gap-4">
+                            <span>
+                              <strong>Tableta:</strong>{" "}
+                              {producto.regulacion_tableta
+                                ? new Intl.NumberFormat("es-CO", {
+                                  style: "currency",
+                                  currency: "COP",
+                                }).format(Number(producto.regulacion_tableta))
+                                : "-"}
+                            </span>
+                            <span>
+                              <strong>Empaque:</strong>{" "}
+                              {producto.regulacion_empaque
+                                ? new Intl.NumberFormat("es-CO", {
+                                  style: "currency",
+                                  currency: "COP",
+                                }).format(Number(producto.regulacion_empaque))
+                                : "-"}
+                            </span>
+                          </div>
                         ) : (
                           "No"
                         )}
@@ -173,7 +169,10 @@ const Productos = () => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={selectedFilterRegulacion === "regulados" ? 5 : 4} className="text-center py-4 text-black">
+                  <td
+                    colSpan={selectedFilterRegulacion === "regulados" ? 7 : 6}
+                    className="text-center py-4 text-black"
+                  >
                     No hay productos disponibles
                   </td>
                 </tr>
