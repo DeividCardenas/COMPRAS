@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import { body, param, query, validationResult } from "express-validator";
+import { body, param,validationResult } from "express-validator";
 import ExcelJS from "exceljs";
 const prisma = new PrismaClient();
 
@@ -24,59 +24,66 @@ const validarIdLaboratorio = [
         .isInt().withMessage("El ID del laboratorio debe ser un número entero válido"),
 ];
 
-// Obtener todos los laboratorios con paginación y filtro por nombre
 const MostrarLaboratorios = async (req, res) => {
     try {
-        await query("page").optional().isInt({ min: 1 }).toInt().run(req);
-        await query("limit").optional().isInt({ min: 1, max: 100 }).toInt().run(req);
-        await query("nombre").optional().trim().run(req);
+        const page = parseInt(req.query.page, 10) || 1;
+        const limit = parseInt(req.query.limit, 10) || 9;
+        const nombre = req.query.nombre?.trim() || "";
+        const idEmpresa = req.query.empresa ? parseInt(req.query.empresa, 10) : null;
 
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            return res.status(400).json({ errores: errors.array() });
+        const skip = (page - 1) * limit;
+
+        let filters = {
+            nombre: { contains: nombre }
+        };
+
+        // Si hay un idEmpresa, filtramos por la relación con EmpresaOnLaboratorio
+        if (idEmpresa) {
+            filters.empresas = {
+                some: { id_empresa: idEmpresa }
+            };
         }
 
-        const { page = 1, limit = 10, nombre = "" } = req.query;
-        const pageNumber = parseInt(page, 10);
-        const pageSize = parseInt(limit, 10);
-        const skip = (pageNumber - 1) * pageSize;
+        // Consultar laboratorios con paginación y filtro por empresa
+        const [laboratorios, total] = await Promise.all([
+            prisma.laboratorio.findMany({
+                where: filters,
+                select: {
+                    id_laboratorio: true,
+                    nombre: true,
+                },
+                skip,
+                take: limit,
+            }),
+            prisma.laboratorio.count({
+                where: filters,
+            }),
+        ]);
 
-        const laboratorios = await prisma.laboratorio.findMany({
-            where: {
-                nombre: {
-                    contains: nombre,
-                },
-            },
-            include: {
-                empresas: {
-                    select: { empresa: { select: { nombre: true } } },
-                },
-                productos: {
-                    select: { descripcion: true },
-                },
-            },
-            skip,
-            take: pageSize,
-        });
-
-        const totalLaboratorios = await prisma.laboratorio.count({
-            where: { nombre: { contains: nombre } },
-        });
+        if (total === 0) {
+            return res.status(200).json({
+                msg: "No se encontraron laboratorios",
+                total,
+                page,
+                limit,
+                totalPages: 0,
+                data: [],
+            });
+        }
 
         res.json({
-            total: totalLaboratorios,
-            page: pageNumber,
-            limit: pageSize,
-            data: laboratorios.map(lab => ({
-                ...lab,
-                empresas: lab.empresas.map(emp => emp.empresa.nombre),
-                productos: lab.productos.map(prod => prod.descripcion),
-            })),
+            total,
+            page,
+            limit,
+            totalPages: Math.ceil(total / limit),
+            data: laboratorios,
         });
     } catch (error) {
-        res.status(500).json({ msg: "Error al obtener los laboratorios", error });
+        console.error("Error en MostrarLaboratorios:", error);
+        res.status(500).json({ msg: "Error al obtener los laboratorios", error: error.message });
     }
 };
+
 
 // Obtener un laboratorio por ID con productos filtrados y paginados
 const MostrarLaboratorio = async (req, res) => {

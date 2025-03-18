@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { fetchEmpresas, Empresa } from "../services/empresasService";
+import { fetchLaboratories, Laboratorio } from "../services/laboratoriosService";
 import { Link, useNavigate } from "react-router-dom";
 import { X, FlaskConical, ChevronLeft, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -10,12 +11,13 @@ const EmpresasPage = () => {
   const [currentPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [selectedEmpresa, setSelectedEmpresa] = useState<Empresa | null>(null);
+  const [laboratorios, setLaboratorios] = useState<Laboratorio[]>([]);
   const [detailSearch, setDetailSearch] = useState("");
   const [labPage, setLabPage] = useState(1);
   const [activeModal, setActiveModal] = useState<string | null>(null);
+  const [totalPages, setTotalPages] = useState(1);
   const navigate = useNavigate();
-  const labsPerPage = 9;
-  const itemsPerPage = 10;
+  const itemsPerPage = 9;
 
   const fetchEmpresasData = useCallback(async (filters: { page: number; limit: number; nombre?: string }) => {
     setLoading(true);
@@ -34,28 +36,36 @@ const EmpresasPage = () => {
     fetchEmpresasData({ page: currentPage, limit: itemsPerPage, nombre: search || undefined });
   }, [search, currentPage, fetchEmpresasData]);
 
-  const handleSelectLaboratorios = (empresa: Empresa) => {
-    setSelectedEmpresa(empresa);
-    setActiveModal('laboratorios');
-    setLabPage(1);
+  const fetchLaboratoriosData = async (empresaId: number, page: number, searchQuery: string) => {
+    try {
+      const fetchedLaboratorios = await fetchLaboratories(page, itemsPerPage, searchQuery, empresaId);
+      setLaboratorios(fetchedLaboratorios.data);
+      setTotalPages(fetchedLaboratorios.totalPages);
+    } catch (error) {
+      console.error("Error al obtener laboratorios:", error);
+    }
   };
 
-  const handleSelectTarifarios = (empresa: Empresa) => {
+  const handleSelectLaboratorios = async (empresa: Empresa) => {
     setSelectedEmpresa(empresa);
-    setActiveModal('tarifarios');
+    setActiveModal("laboratorios");
     setLabPage(1);
-  };
-  const filteredItems = (items: { id_laboratorio: number; nombre: string }[]) => {
-    return items.filter((item) => item.nombre.toLowerCase().includes(detailSearch.toLowerCase()));
+    fetchLaboratoriosData(empresa.id_empresa, 1, "");
   };
 
-  const paginatedLabs = (labs: { id_laboratorio: number; nombre: string }[]) => {
-    const startIndex = (labPage - 1) * labsPerPage;
-    return labs.slice(startIndex, startIndex + labsPerPage);
-  };
+    const handleSelectTarifarios = (empresa: Empresa) => {
+      setSelectedEmpresa(empresa);
+      setActiveModal('tarifarios');
+      setLabPage(1);
+    };
+
+  useEffect(() => {
+    if (selectedEmpresa) {
+      fetchLaboratoriosData(selectedEmpresa.id_empresa, labPage, detailSearch);
+    }
+  }, [labPage, detailSearch, selectedEmpresa]);
 
   return (
-
     <div className="relative p-6 bg-sky-900 min-h-screen flex flex-col">
       <motion.h1
         className="text-3xl font-bold text-white mb-6 text-center"
@@ -108,23 +118,22 @@ const EmpresasPage = () => {
         </div>
       )}
 
-      {/* This is the modal for the laboratorios of the selected company */}
       <AnimatePresence>
-        {selectedEmpresa && activeModal === 'laboratorios' && (
+        {selectedEmpresa && activeModal === "laboratorios" && (
           <motion.div
             className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.3, ease: 'easeInOut' }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
             onClick={() => setSelectedEmpresa(null)}
           >
             <motion.div
               className="bg-sky-900 p-6 shadow-lg rounded-2xl max-w-4xl w-full"
-              initial={{ scale: 0.8, y: 50, opacity: 0 }}
-              animate={{ scale: 1, y: 0, opacity: 1 }}
-              exit={{ scale: 0.8, y: 50, opacity: 0 }}
-              transition={{ type: 'spring', stiffness: 100, damping: 20 }}
+              initial={{ scale: 0.8 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0.8 }}
+              transition={{ duration: 0.3, ease: "easeInOut" }}
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex justify-between items-center mb-6">
@@ -133,52 +142,76 @@ const EmpresasPage = () => {
                   <X size={24} />
                 </button>
               </div>
-              <div className="mb-4">
-                <div className="flex items-center gap-2">
-                  <input
-                    type="text"
-                    placeholder="Buscar laboratorios..."
-                    value={detailSearch}
-                    onChange={(e) => setDetailSearch(e.target.value)}
-                    className="bg-zinc-100 p-2 rounded-lg w-full"
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-
-                <AnimatePresence>
-                  {paginatedLabs(filteredItems(selectedEmpresa.laboratorios)).map((lab, index) => (
-                    <Link key={lab.id_laboratorio} to={`/laboratorio/${lab.id_laboratorio}`}>
-                      <motion.div
-                        initial={{ opacity: 0, y: 30, scale: 0.95 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: 30, scale: 0.95 }}
-                        whileHover={{ scale: 1.05 }}
-                        transition={{ duration: 0.3, ease: 'easeOut', delay: index * 0.05 }}
-                        className="bg-white p-6 rounded-xl shadow-xl hover:shadow-2xl transform transition-all cursor-pointer">
-                        <div className="flex items-center gap-3 mb-3">
+              <input
+                type="text"
+                placeholder="Buscar laboratorios..."
+                value={detailSearch}
+                onChange={(e) => setDetailSearch(e.target.value)}
+                className="bg-zinc-100 p-2 rounded-lg w-full mb-4"
+              />
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={labPage}
+                  className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.5 }}
+                >
+                  {laboratorios.map((lab, index) => (
+                    <motion.div
+                      key={lab.id_laboratorio}
+                      layout
+                      initial={{ opacity: 0, y: 30, scale: 0.9 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: -10, scale: 0.5 }}
+                      transition={{ duration: 0.2, ease: "easeOut", delay: index * 0.01 }}
+                      whileHover={{ scale: 1.08 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <Link to={`/laboratorio/${lab.id_laboratorio}`}>
+                        <motion.div className="bg-white p-6 rounded-xl shadow-xl hover:shadow-2xl transform transition-all cursor-pointer">
                           <FlaskConical className="text-indigo-900" size={32} />
                           <h4 className="text-gray-900 font-semibold text-lg">{lab.nombre}</h4>
-                        </div>
-                      </motion.div>
-                    </Link>
+                        </motion.div>
+                      </Link>
+                    </motion.div>
                   ))}
-                </AnimatePresence>
-              </div>
-              <div className="flex justify-between items-center mt-6">
-                <button
+                </motion.div>
+              </AnimatePresence>
+              <div className="flex justify-center items-center mt-6 gap-4">
+                <motion.button
+                  whileTap={{ scale: 0.9 }}
+                  whileHover={{ scale: labPage > 1 ? 1.1 : 1 }}
                   onClick={() => setLabPage((prev) => Math.max(prev - 1, 1))}
-                  className="bg-gray-200 p-2 rounded-lg hover:bg-gray-300"
+                  disabled={labPage === 1}
+                  className={`p-2 rounded-full transition-all ${labPage === 1 ? "text-gray-400 cursor-not-allowed" : "text-white hover:bg-gray-700"
+                    }`}
                 >
-                  <ChevronLeft size={24} />
-                </button>
-                <span className="text-white"> Página {labPage}</span>
-                <button
-                  onClick={() => setLabPage((prev) => prev + 1)}
-                  className="bg-gray-200 p-2 rounded-lg hover:bg-gray-300"
+                  <ChevronLeft size={28} />
+                </motion.button>
+
+                <motion.span
+                  key={labPage}
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  transition={{ duration: 0.3 }}
+                  className="text-lg font-semibold text-white"
                 >
-                  <ChevronRight size={24} />
-                </button>
+                  Página {labPage} de {totalPages}
+                </motion.span>
+
+                <motion.button
+                  whileTap={{ scale: 0.9 }}
+                  whileHover={{ scale: labPage < totalPages ? 1.1 : 1 }}
+                  onClick={() => setLabPage((prev) => Math.min(prev + 1, totalPages))}
+                  disabled={labPage === totalPages}
+                  className={`p-2 rounded-full transition-all ${labPage === totalPages ? "text-gray-400 cursor-not-allowed" : "text-white hover:bg-gray-700"
+                    }`}
+                >
+                  <ChevronRight size={28} />
+                </motion.button>
               </div>
             </motion.div>
           </motion.div>
@@ -238,6 +271,7 @@ const EmpresasPage = () => {
         )}
       </AnimatePresence>
 
+      
     </div>
   );
 };

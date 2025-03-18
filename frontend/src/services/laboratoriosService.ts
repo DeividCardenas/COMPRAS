@@ -15,7 +15,7 @@ interface Producto {
   regulacion_empaque?: number | null;
 }
 
-interface Laboratorio {
+export interface Laboratorio {
   id_laboratorio: number;
   nombre: string;
 }
@@ -30,6 +30,44 @@ interface ProductoResponse {
     lista: Producto[];
   };
 }
+
+interface LaboratorioResponse {
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+  data: Laboratorio[];
+}
+
+export const fetchLaboratories = async (
+  page: number = 1,
+  limit: number = 9,
+  nombre: string = "",
+  empresa?: number
+): Promise<LaboratorioResponse> => {
+  setBaseURL("laboratorio");
+
+  try {
+    const response = await axiosInstance.get<LaboratorioResponse>("/", {
+      params: { 
+        page, 
+        limit, 
+        nombre: nombre.trim(), 
+        empresa
+      },
+    });
+
+    return response.data;
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error)) {
+      console.error("Error al obtener los laboratorios:", error.response?.data || error.message);
+      throw new Error(error.response?.data?.msg || "No se pudo obtener los laboratorios");
+    } else {
+      console.error("Error desconocido:", error);
+      throw new Error("No se pudo obtener los laboratorios");
+    }
+  }
+};
 
 export const fetchProductsByLaboratory = async (
   id_laboratorio: string,

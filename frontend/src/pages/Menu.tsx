@@ -19,36 +19,37 @@ const Menu: React.FC = () => {
   };
 
   return (
-    <div className="h-screen bg-sky-900 flex flex-col items-center justify-center p-6 overflow-hidden">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 w-full max-w-6xl">
-        <button
-          onClick={() => handleNavigation("/Productos")}
-          className="bg-white rounded-3xl shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all p-6 flex flex-col items-center justify-center text-center focus:outline-none"
-          aria-label="Ir a la sección de Productos"
-        >
-          <ShoppingBag size={48} className="text-indigo-900" />
-          <h3 className="text-2xl font-semibold text-indigo-900 mt-4">Productos</h3>
-          <p className="text-gray-600 mt-2">Gestiona tus productos aquí</p>
-        </button>
+    <div className="h-screen bg-sky-900 flex flex-col items-center justify-center p-6 overflow-hidden relative">
+      <button
+        onClick={() => handleNavigation("/EPS")}
+        className="absolute top-4 right-4 bg-white p-3 rounded-full shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all focus:outline-none group"
+        aria-label="Ir a la sección de EPS"
+      >
+        <Briefcase size={32} className="text-indigo-900" />
+        <span className="absolute top-full right-0 mt-2 w-max px-3 py-1 bg-indigo-900 text-white text-sm rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity">
+          Ir a la sección EPS
+        </span>
+      </button>
 
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-8 w-full max-w-6xl px-4">
         <button
           onClick={() => handleNavigation("/Empresas")}
           className="bg-white rounded-3xl shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all p-6 flex flex-col items-center justify-center text-center focus:outline-none"
           aria-label="Ir a la sección de Empresas"
         >
-          <Factory size={48} className="text-indigo-900" />
-          <h3 className="text-2xl font-semibold text-indigo-900 mt-4">Empresas</h3>
+          <Factory size={60} className="text-indigo-900" />
+          <h3 className="text-3xl font-semibold text-indigo-900 mt-5">Empresas</h3>
           <p className="text-gray-600 mt-2">Gestiona las empresas aquí</p>
         </button>
 
         <button
-          onClick={() => handleNavigation("/EPS")}
+          onClick={() => handleNavigation("/Productos")}
           className="bg-white rounded-3xl shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all p-6 flex flex-col items-center justify-center text-center focus:outline-none"
-          aria-label="Ir a la sección de EPS"
+          aria-label="Ir a la sección de Productos"
         >
-          <Briefcase size={48} className="text-indigo-900" />
-          <h3 className="text-2xl font-semibold text-indigo-900 mt-4">EPS</h3>
-          <p className="text-gray-600 mt-2">Gestiona las EPS aquí</p>
+          <ShoppingBag size={60} className="text-indigo-900" />
+          <h3 className="text-3xl font-semibold text-indigo-900 mt-5">Productos</h3>
+          <p className="text-gray-600 mt-2">Gestiona tus productos aquí</p>
         </button>
       </div>
 

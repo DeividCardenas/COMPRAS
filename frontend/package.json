@@ -15,7 +15,7 @@
     "@tailwindcss/postcss": "^4.0.14",
     "@tailwindcss/vite": "^4.0.0",
     "axios": "^1.7.9",
-    "framer-motion": "^12.4.7",
+    "framer-motion": "^12.5.0",
     "lodash.debounce": "^4.0.8",
     "lucide-react": "^0.474.0",
     "motion": "^12.4.7",
