@@ -1,22 +1,9 @@
 import { useState, useEffect, useCallback } from "react";
 import { useParams } from "react-router-dom";
-import { fetchProductsByLaboratory, exportProductsToExcel } from "../services/laboratoriosService";
+import { fetchProductsByLaboratory, Producto } from "../services/laboratoriosService";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faTimes, faFileExport } from "@fortawesome/free-solid-svg-icons";
+import { faTimes } from "@fortawesome/free-solid-svg-icons";
 import { toast } from "react-toastify";
-
-interface Producto {
-  id_producto: number;
-  codigo_magister?: string;
-  cum_pactado?: string;
-  descripcion: string;
-  principio_activo: string;
-  concentracion: string;
-  registro_sanitario: string;
-  costo_compra: string;
-  regulacion_tableta?: number | null;
-  regulacion_empaque?: number | null;
-}
 
 const LaboratorioDetalles = () => {
   const { laboratorioId } = useParams<{ laboratorioId: string }>();
@@ -28,22 +15,65 @@ const LaboratorioDetalles = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
 
+  // Estados para columnas adicionales
+  const [selectedExtraFields, setSelectedExtraFields] = useState<string[]>([]);
+  const [tempSelectedExtraFields, setTempSelectedExtraFields] = useState<string[]>(selectedExtraFields);
+  const [showColumnSelector, setShowColumnSelector] = useState(false);
+
   const itemsPerPage = 10;
 
+  // Lista de campos extra disponibles
+  const extraFieldsList = [
+    { field: "presentacion", label: "Presentación" },
+    { field: "registro_sanitario", label: "Registro Sanitario" },
+    { field: "regulacion", label: "Regulación" },
+    { field: "codigo_barras", label: "Código de Barras" },
+  ];
+
+  // Extraer lógica para construir filtros como callback memorizado
+  const buildFilters = useCallback(() => {
+    const filters: Record<string, string> = {
+      page: currentPage.toString(),
+      limit: itemsPerPage.toString(),
+    };
+
+    if (selectedFilter && search) {
+      filters[selectedFilter] = search;
+    }
+    if (["regulados", "no_regulados"].includes(selectedFilterRegulacion)) {
+      filters["con_regulacion"] = selectedFilterRegulacion;
+    }
+    if (selectedExtraFields.length > 0) {
+      filters["campos"] = selectedExtraFields.join(",");
+    }
+    return filters;
+  }, [currentPage, selectedFilter, search, selectedFilterRegulacion, selectedExtraFields]);
+
+  // Manejo de la selección temporal en el modal
+  const toggleTempExtraField = (field: string) => {
+    setTempSelectedExtraFields((prev) =>
+      prev.includes(field) ? prev.filter((f) => f !== field) : [...prev, field]
+    );
+  };
+
+  // Aplica los cambios del modal y actualiza el estado de columnas seleccionadas
+  const handleApplyColumnSelection = () => {
+    setSelectedExtraFields(tempSelectedExtraFields);
+    setShowColumnSelector(false);
+  };
+
+  // Cancela la selección y cierra el modal sin cambios
+  const handleCancelColumnSelection = () => {
+    setTempSelectedExtraFields(selectedExtraFields);
+    setShowColumnSelector(false);
+  };
+
+  // Función para obtener los productos utilizando los filtros generados
   const fetchProductosData = useCallback(async () => {
     if (!laboratorioId) return;
     setLoading(true);
     try {
-      const filters: Record<string, string> = {
-        page: currentPage.toString(),
-        limit: itemsPerPage.toString(),
-      };
-      if (selectedFilter && search) {
-        filters[selectedFilter] = search;
-      }
-      if (["regulados", "no_regulados"].includes(selectedFilterRegulacion)) {
-        filters["con_regulacion"] = selectedFilterRegulacion;
-      }
+      const filters = buildFilters();
       const fetchedProductos = await fetchProductsByLaboratory(laboratorioId, filters);
       setProductos(fetchedProductos.productos.lista);
       setTotalPages(fetchedProductos.productos.totalPaginas);
@@ -54,26 +84,22 @@ const LaboratorioDetalles = () => {
     } finally {
       setLoading(false);
     }
-  }, [laboratorioId, search, selectedFilter, selectedFilterRegulacion, currentPage]);
+  }, [laboratorioId, buildFilters]);
 
-  const handleExportExcel = async () => {
-    if (!laboratorioId) return;
-    try {
-      await exportProductsToExcel(laboratorioId);
-      toast.success("Productos exportados con éxito");
-    } catch {
-      toast.error("Error al exportar los productos");
-    }
-  };
+  // Efecto para actualizar los productos cuando cambie la página
+  useEffect(() => {
+    fetchProductosData();
+  }, [currentPage, fetchProductosData]);
 
+  // Efecto para reiniciar la página a 1 cuando cambian los filtros o la búsqueda
   useEffect(() => {
     setCurrentPage(1);
-    fetchProductosData();
-  }, [fetchProductosData, search, selectedFilter, selectedFilterRegulacion]);
+  }, [search, selectedFilter, selectedFilterRegulacion, selectedExtraFields]);
 
   return (
     <div className="relative p-4 bg-sky-900 min-h-screen flex flex-col">
-      <div className="mb-4 flex flex-wrap gap-4 items-center">
+      {/* Sección de filtros y controles */}
+      <div className="mb-4 flex flex-wrap gap-4 items-center relative">
         <div className="relative w-full sm:max-w-xs">
           <input
             type="text"
@@ -83,49 +109,101 @@ const LaboratorioDetalles = () => {
             className="bg-zinc-100 rounded-lg p-2 text-gray-950 w-full shadow-md pr-8 text-sm"
           />
           {search && (
-            <button onClick={() => setSearch("")} className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-950 text-lg">
+            <button
+              onClick={() => setSearch("")}
+              className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-950 text-lg"
+            >
               <FontAwesomeIcon icon={faTimes} />
             </button>
           )}
         </div>
 
-        <button
-          onClick={handleExportExcel}
-          className="bg-indigo-900 text-white px-4 py-2 rounded-md hover:bg-blue-900 absolute top-4 right-4"
-        > 
-          <FontAwesomeIcon icon={faFileExport} className="mr-2" />
-          Exportar a Excel
-        </button>
-
-        <select value={selectedFilter} onChange={(e) => setSelectedFilter(e.target.value)} className="bg-zinc-100 text-black rounded-md p-2 shadow-sm text-sm">
-          <option value="">Filtro</option>
-          <option value="codigo_magister">Código Magister</option>
-          <option value="cum_pactado">CUM Pactado</option>
-          <option value="descripcion">Descripción</option>
-          <option value="principio_activo">Principio Activo</option>
-          <option value="concentracion">Concentración</option>
-        </select>
-
         <select
-          value={selectedFilterRegulacion}
-          onChange={(e) => setSelectedFilterRegulacion(e.target.value)}
+          value={selectedFilter}
+          onChange={(e) => setSelectedFilter(e.target.value)}
           className="bg-zinc-100 text-black rounded-md p-2 shadow-sm text-sm"
         >
-          <option value="">Filtrar por Regulación</option>
-          <option value="todos">Todos los productos</option>
-          <option value="regulados">Productos regulados</option>
-          <option value="no_regulados">Productos no regulados</option>
+          <option value="">Filtro</option>
+          <option value="descripcion">Descripción</option>
+          <option value="cum">CUM</option>
+          <option value="codigo_barras">Código de Barras</option>
         </select>
+
+        {/* Mostrar el filtro de regulación solo si la columna "regulación" está seleccionada */}
+        {selectedExtraFields.includes("regulacion") && (
+          <select
+            value={selectedFilterRegulacion}
+            onChange={(e) => setSelectedFilterRegulacion(e.target.value)}
+            className="bg-zinc-100 text-black rounded-md p-2 shadow-sm text-sm"
+          >
+            <option value="">Filtrar por Regulación</option>
+            <option value="regulados">Productos regulados</option>
+            <option value="no_regulados">Productos no regulados</option>
+          </select>
+        )}
+
+        {/* Botón para abrir el modal de selección de columnas */}
+        <button
+          onClick={() => setShowColumnSelector(true)}
+          className="px-4 py-2 rounded-lg bg-indigo-900 hover:bg-indigo-700 text-white shadow-md"
+        >
+          Seleccionar columnas
+        </button>
       </div>
 
+      {/* Modal para seleccionar columnas adicionales */}
+      {showColumnSelector && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white rounded-lg p-6 w-11/12 max-w-md">
+            <h2 className="text-xl font-bold mb-4">Selecciona campos adicionales</h2>
+            <div className="flex flex-col gap-3">
+              {extraFieldsList.map((item) => (
+                <label key={item.field} className="flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={tempSelectedExtraFields.includes(item.field)}
+                    onChange={() => toggleTempExtraField(item.field)}
+                    className="mr-2"
+                  />
+                  {item.label}
+                </label>
+              ))}
+            </div>
+            <div className="mt-6 flex justify-end gap-4">
+              <button
+                onClick={handleCancelColumnSelection}
+                className="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400 text-black"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleApplyColumnSelection}
+                className="px-4 py-2 rounded bg-indigo-600 hover:bg-indigo-700 text-white"
+              >
+                Aplicar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Paginación */}
       <div className="flex justify-between items-center mb-4 text-sm w-full">
-        <button onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))} className={`py-2 px-3 bg-indigo-900 hover:bg-gray-400 text-white rounded-md ${currentPage === 1 ? "invisible" : ""}`} style={{ width: "100px" }}>
+        <button
+          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+          className={`py-2 px-3 bg-indigo-900 hover:bg-gray-400 text-white rounded-md ${currentPage === 1 ? "invisible" : ""}`}
+          style={{ width: "100px" }}
+        >
           Anterior
         </button>
         <div className="flex-grow text-center text-white">
           Página {currentPage} de {totalPages}
         </div>
-        <button onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))} className={`py-2 px-3 bg-indigo-900 hover:bg-gray-400 text-white rounded-md ${currentPage === totalPages ? "invisible" : ""}`} style={{ width: "100px" }}>
+        <button
+          onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+          className={`py-2 px-3 bg-indigo-900 hover:bg-gray-400 text-white rounded-md ${currentPage === totalPages ? "invisible" : ""}`}
+          style={{ width: "100px" }}
+        >
           Siguiente
         </button>
       </div>
@@ -138,47 +216,68 @@ const LaboratorioDetalles = () => {
           <table className="min-w-full text-sm">
             <thead className="p-3 border-b text-center text-white bg-indigo-900">
               <tr>
-                <th className="p-2">Código Magister</th>
-                <th className="p-2">CUM Pactado</th>
+                <th className="p-2">CUM</th>
                 <th className="p-2">Descripción</th>
-                <th className="p-2">Principio Activo</th>
+                {selectedExtraFields.includes("presentacion") && (
+                  <th className="p-2">Presentación</th>
+                )}
                 <th className="p-2">Concentración</th>
-                <th className="p-2">Costo Compra</th>
-                {selectedFilterRegulacion === "regulados" && <th className="p-2">Regulación</th>}
+                <th className="p-2">Precio Unidad</th>
+                <th className="p-2">Precio Presentación</th>
+                {selectedExtraFields.includes("registro_sanitario") && (
+                  <th className="p-2">Registro Sanitario</th>
+                )}
+                {selectedExtraFields.includes("regulacion") && (
+                  <th className="p-2">Regulación</th>
+                )}
+                {selectedExtraFields.includes("codigo_barras") && (
+                  <th className="p-2">Código de Barras</th>
+                )}
               </tr>
             </thead>
             <tbody className="bg-stone-200">
               {productos.length > 0 ? (
                 productos.map((producto) => (
                   <tr key={producto.id_producto} className="hover:bg-violet-300">
-                    <td className="p-2 text-center">{producto.codigo_magister ?? "-"}</td>
-                    <td className="p-2 text-center">{producto.cum_pactado ?? "-"}</td>
+                    <td className="p-2 text-center">{producto.cum}</td>
                     <td className="p-2 text-center">{producto.descripcion}</td>
-                    <td className="p-2 text-center">{producto.principio_activo}</td>
-                    <td className="p-2 text-center">{producto.concentracion ?? "-"}</td>
+                    {selectedExtraFields.includes("presentacion") && (
+                      <td className="p-2 text-center">{producto.presentacion ?? "-"}</td>
+                    )}
+                    <td className="p-2 text-center">{producto.concentracion}</td>
                     <td className="p-2 text-center">
                       {new Intl.NumberFormat("es-CO", {
                         style: "currency",
                         currency: "COP",
-                      }).format(Number(producto.costo_compra))}
+                      }).format(Number(producto.precio_unidad))}
                     </td>
-                    {selectedFilterRegulacion === "regulados" && (
-                      <td className="p-2 text-center">
-                        {producto.regulacion_tableta || producto.regulacion_empaque ? (
-                          <span>
-                            Tableta: {producto.regulacion_tableta ?? "-"} | Empaque: {producto.regulacion_empaque ?? "-"}
-                          </span>
-                        ) : (
-                          "No"
-                        )}
-                      </td>
+                    <td className="p-2 text-center">
+                      {new Intl.NumberFormat("es-CO", {
+                        style: "currency",
+                        currency: "COP",
+                      }).format(Number(producto.precio_presentacion))}
+                    </td>
+                    {selectedExtraFields.includes("registro_sanitario") && (
+                      <td className="p-2 text-center">{producto.registro_sanitario ?? "-"}</td>
+                    )}
+                    {selectedExtraFields.includes("regulacion") && (
+                      <td className="p-2 text-center">{producto.regulacion ?? "-"}</td>
+                    )}
+                    {selectedExtraFields.includes("codigo_barras") && (
+                      <td className="p-2 text-center">{producto.codigo_barras ?? "-"}</td>
                     )}
                   </tr>
                 ))
               ) : (
                 <tr>
                   <td
-                    colSpan={selectedFilterRegulacion === "regulados" ? 7 : 6}
+                    colSpan={
+                      6 +
+                      (selectedExtraFields.includes("presentacion") ? 1 : 0) +
+                      (selectedExtraFields.includes("registro_sanitario") ? 1 : 0) +
+                      (selectedExtraFields.includes("regulacion") ? 1 : 0) +
+                      (selectedExtraFields.includes("codigo_barras") ? 1 : 0)
+                    }
                     className="text-center py-4 text-black"
                   >
                     No hay productos disponibles

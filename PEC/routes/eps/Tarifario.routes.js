@@ -48,7 +48,7 @@ router.get(
 
 router.post(
     "/", 
-    VerificarAcceso({ rolesPermitidos: ["admin"], permisosRequeridos: ["crear_tarifario"] }), 
+    VerificarAcceso({ rolesPermitidos: ["Administrador"], permisosRequeridos: ["crear_tarifario"] }), 
     validarTarifario, 
     CrearTarifario
 );
@@ -56,7 +56,7 @@ router.post(
 router.put(
     "/:id_tarifario", 
     VerificarAcceso({ 
-        rolesPermitidos: ["admin", "editor"], 
+        rolesPermitidos: ["Administrador", "editor"], 
         permisosRequeridos: ["editar_tarifario"],
         verificarTarifario: true // Verifica que pueda editar ese tarifario específico
     }), 

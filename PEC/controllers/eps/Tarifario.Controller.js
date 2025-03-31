@@ -63,59 +63,113 @@ const CrearTarifario = async (req, res) => {
   }
 };
 
-// Obtener un tarifario por ID
 const MostrarTarifarioPorId = async (req, res) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty())
-    return res.status(400).json({ errores: errors.array() });
-
-  const { id_tarifario } = req.params;
-
   try {
-    const tarifario = await prisma.tarifario.findUnique({
-      where: { id_tarifario: Number(id_tarifario) },
-      include: {
-        productos: {
-          include: {
-            producto: {
-              select: {
-                id_producto: true,
-                codigo_magister: false,
-                cum_pactado: true,
-                descripcion: true,
-                principio_activo: true,
-                concentracion: true,
-                registro_sanitario: true,
-                costo_compra: false,
-                regulacion_tableta: false,
-                regulacion_empaque: false,
-              },
+      // Validar ID del tarifario
+      await Promise.all(validarIdTarifario.map(validation => validation.run(req)));
+      const errors = validationResult(req);
+
+      if (!errors.isEmpty()) {
+          return res.status(400).json({ errores: errors.array() });
+      }
+
+      const { id_tarifario } = req.params;
+      const tarifarioId = parseInt(id_tarifario, 10);
+      if (isNaN(tarifarioId) || tarifarioId <= 0) {
+          return res.status(400).json({ msg: "ID de tarifario inválido" });
+      }
+
+      // Paginación con valores seguros
+      const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
+      let limit = Math.max(parseInt(req.query.limit, 10) || 10, 1);
+      const maxLimit = 50;
+      limit = Math.min(limit, maxLimit);
+      const skip = (page - 1) * limit;
+
+      // Parámetros de filtrado
+      const { cum, descripcion, concentracion, registro_sanitario, presentacion, regulacion, codigo_barras, con_regulacion, campos } = req.query;
+
+      const condiciones = { id_tarifario: tarifarioId };
+
+      if (cum) condiciones.cum = { contains: cum };
+      if (descripcion) condiciones.descripcion = { contains: descripcion };
+      if (concentracion) condiciones.concentracion = { contains: concentracion };
+      if (registro_sanitario) condiciones.registro_sanitario = { contains: registro_sanitario };
+      if (presentacion) condiciones.presentacion = { contains: presentacion };
+      if (codigo_barras) condiciones.codigo_barras = { contains: codigo_barras };
+      
+      if (con_regulacion === "regulados") {
+          condiciones.regulacion = { not: null };
+      } else if (con_regulacion === "no_regulados") {
+          condiciones.regulacion = null;
+      } else if (regulacion) {
+          condiciones.regulacion = { contains: regulacion };
+      }
+
+      // Definir campos base obligatorios
+      const selectFields = {
+          id_producto: true, cum: true, descripcion: true, concentracion: true,
+          presentacion: true, registro_sanitario: true, id_laboratorio: true,
+          iva: true, createdAt: true, updatedAt: true, laboratorio: { select: { nombre: true } }
+      };
+
+      // Agregar campos opcionales
+      const extraFields = ["regulacion", "codigo_barras"];
+      if (campos) {
+          campos.split(",").map(campo => campo.trim()).forEach(field => {
+              if (extraFields.includes(field)) selectFields[field] = true;
+          });
+      }
+
+      // Buscar tarifario
+      const tarifario = await prisma.tarifario.findUnique({
+          where: { id_tarifario: tarifarioId },
+          select: { id_tarifario: true, nombre: true, createdAt: true, updatedAt: true, permisos: true }
+      });
+
+      if (!tarifario) {
+          return res.status(404).json({ msg: "Tarifario no encontrado" });
+      }
+
+      // Obtener productos y total de productos
+      const [productos, totalProductos] = await Promise.all([
+        prisma.tarifarioOnProducto.findMany({
+            where: { id_tarifario: tarifarioId },
+            select: {
+                producto: { select: selectFields }, 
+                precio: true,
+                precio_unidad: true,
+                precio_empaque: true,
             },
+            take: limit,
+            skip,
+        }),
+        prisma.tarifarioOnProducto.count({ where: { id_tarifario: tarifarioId } })
+    ]);
+
+      // Transformar productos para incluir precios del tarifario
+      const productosConPrecios = productos.map(({ producto, precio, precio_unidad, precio_empaque }) => ({
+          ...producto,
+          precio,
+          precio_unidad,
+          precio_presentacion: precio_empaque,
+      }));
+
+      // Responder con la información completa
+      res.status(200).json({
+          tarifario,
+          productos: {
+              totalProductos,
+              totalPaginas: Math.ceil(totalProductos / limit),
+              paginaActual: page,
+              tamanoPagina: limit,
+              lista: productosConPrecios,
           },
-        },
-        permisos: true,
-      },
-    });
+      });
 
-    if (!tarifario)
-      return res.status(404).json({ msg: "Tarifario no encontrado" });
-
-    // Transformar los productos para incluir los precios del tarifario
-    const productosConPrecios = tarifario.productos.map((producto) => ({
-      id_producto: producto.producto.id_producto,
-      cum_pactado: producto.producto.cum_pactado,
-      descripcion: producto.producto.descripcion,
-      principio_activo: producto.producto.principio_activo,
-      concentracion: producto.producto.concentracion,
-      registro_sanitario: producto.producto.registro_sanitario,
-      precio: producto.precio,
-      precio_unidad: producto.precio_unidad,
-      precio_empaque: producto.precio_empaque,
-    }));
-
-    res.json({ ...tarifario, productos: productosConPrecios });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+  } catch (error) {
+      console.error("Error al obtener el tarifario con productos:", error);
+      res.status(500).json({ msg: "Error interno del servidor al obtener el tarifario", error: error.message });
   }
 };
 

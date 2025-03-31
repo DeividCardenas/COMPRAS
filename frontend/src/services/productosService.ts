@@ -4,29 +4,34 @@ import { axiosInstance, setBaseURL } from "./axiosInstance";
 export interface ProductParams {
   page?: number;
   limit?: number;
-  codigo_magister?: string;
-  cum_pactado?: string;
+  cum?: string;
   descripcion?: string;
-  id_laboratorio?: number;
-  principio_activo?: string;
   concentracion?: string;
   registro_sanitario?: string;
+  presentacion?: string;
+  regulacion?: string;
+  codigo_barras?: string;
+  id_laboratorio?: number;
   con_regulacion?: "regulados" | "no_regulados";
+  campos?: string;
 }
 
 // Definir la interfaz para los productos
 export interface Producto {
   id_producto: number;
-  codigo_magister?: string;
-  cum_pactado?: string;
+  cum: string;
   descripcion: string;
-  costo_compra: string;
-  regulacion_tableta?: number | null;
-  regulacion_empaque?: number | null;
-  principio_activo: string;
   concentracion: string;
-  registro_sanitario: string;
+  id_laboratorio: number;
+  precio_unidad: string;
+  precio_presentacion: string;
+  iva: number;
   laboratorio?: { nombre: string };
+  presentacion?: string;
+  registro_sanitario?: string;
+  regulacion?: string | null;
+  codigo_barras?: string;
+  
 }
 
 // Definir la estructura de la respuesta esperada de la API para productos
@@ -57,20 +62,5 @@ export const fetchProductos = async (
   } catch (error) {
     console.error("Error al obtener productos:", error);
     throw new Error("No se pudo obtener los productos");
-  }
-};
-
-// Función para obtener un producto por su ID
-export const fetchProductoById = async (
-  id: number
-): Promise<Producto | null> => {
-  setBaseURL("producto");
-
-  try {
-    const response = await axiosInstance.get<Producto>(`/${id}`);
-    return response.data;
-  } catch (error) {
-    console.error("Error al obtener el producto por ID:", error);
-    throw new Error("No se pudo obtener el producto por ID");
   }
 };

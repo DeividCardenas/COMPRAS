@@ -10,19 +10,20 @@ const { Router } = require("express");
 const router = Router();
 
 const { 
-    MostrarProductos, 
-    MostrarProductoPorId, 
+    MostrarProductos,
     CrearProducto, 
     EditarProducto, 
-    EliminarProducto 
+    EliminarProducto,
+    validarProducto,
+    validarEdicionProducto
+
 } = require("../../controllers/productos/Producto.Controller");
 
 /* ========================== Productos ========================== */
 
 router.get("/", MostrarProductos);                  // Obtener todos los productos
-router.get("/:id_producto", MostrarProductoPorId);  // Obtener un producto por ID
-router.post("/", CrearProducto);                    // Crear un nuevo producto
-router.put("/:id_producto", EditarProducto);        // Editar un producto por ID
+router.post("/", validarProducto, CrearProducto);   // Crear un nuevo producto
+router.put("/:id_producto", validarEdicionProducto, EditarProducto);        // Editar un producto por ID
 router.delete("/:id_producto", EliminarProducto);   // Eliminar un producto por ID
 
 module.exports = router;

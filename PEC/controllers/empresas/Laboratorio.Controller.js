@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import { body, param,validationResult } from "express-validator";
+import { body, param, validationResult } from "express-validator";
 import ExcelJS from "exceljs";
 const prisma = new PrismaClient();
 
@@ -84,8 +84,6 @@ const MostrarLaboratorios = async (req, res) => {
     }
 };
 
-
-// Obtener un laboratorio por ID con productos filtrados y paginados
 const MostrarLaboratorio = async (req, res) => {
     try {
         // Validar ID del laboratorio
@@ -99,65 +97,83 @@ const MostrarLaboratorio = async (req, res) => {
         const { id_laboratorio } = req.params;
 
         // Validar que id_laboratorio sea un número válido
-        const laboratorioId = Number(id_laboratorio);
+        const laboratorioId = parseInt(id_laboratorio, 10);
         if (isNaN(laboratorioId) || laboratorioId <= 0) {
             return res.status(400).json({ msg: "ID de laboratorio inválido" });
         }
 
-        // Paginación y filtros
-        const { page = 1, limit = 10, codigo_magister, cum_pactado, descripcion, principio_activo, concentracion, registro_sanitario, con_regulacion } = req.query;
+        // Paginación con valores predeterminados seguros
+        const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
+        let limit = Math.max(parseInt(req.query.limit, 10) || 10, 1);
+        const maxLimit = 50; // Límite máximo para evitar sobrecarga
+        limit = Math.min(limit, maxLimit);
+        const skip = (page - 1) * limit;
 
-        const numeroPagina = parseInt(page, 10) || 1;
-        const tamanoPagina = parseInt(limit, 10) || 10;
-        const skip = (numeroPagina - 1) * tamanoPagina;
+        // Parámetros de filtrado
+        const { cum, descripcion, concentracion, registro_sanitario, presentacion, regulacion, codigo_barras, con_regulacion, campos } = req.query;
 
-        // Construir condiciones para los productos
         const condiciones = { id_laboratorio: laboratorioId };
 
-        if (codigo_magister) condiciones.codigo_magister = { contains: codigo_magister };
-        if (cum_pactado) condiciones.cum_pactado = { contains: cum_pactado };
+        if (cum) condiciones.cum = { contains: cum };
         if (descripcion) condiciones.descripcion = { contains: descripcion };
-        if (principio_activo) condiciones.principio_activo = { contains: principio_activo };
         if (concentracion) condiciones.concentracion = { contains: concentracion };
         if (registro_sanitario) condiciones.registro_sanitario = { contains: registro_sanitario };
-
+        if (presentacion) condiciones.presentacion = { contains: presentacion };
+        if (codigo_barras) condiciones.codigo_barras = { contains: codigo_barras };
+        
         if (con_regulacion === "regulados") {
-            condiciones.OR = [
-                { regulacion_tableta: { not: null } },
-                { regulacion_empaque: { not: null } },
-            ];
+            condiciones.regulacion = { not: null };
         } else if (con_regulacion === "no_regulados") {
-            condiciones.AND = [
-                { regulacion_tableta: null },
-                { regulacion_empaque: null },
-            ];
+            condiciones.regulacion = null;
+        } else if (regulacion) {
+            condiciones.regulacion = { contains: regulacion};
         }
 
-        // Buscar laboratorio y productos
+        // Definir campos base obligatorios
+        const selectFields = {
+            id_producto: true, cum: true, descripcion: true, concentracion: true,
+            id_laboratorio: true, precio_unidad: true, precio_presentacion: true,
+            iva: true, createdAt: true, updatedAt: true,
+            laboratorio: { select: { nombre: true } },
+        };
+
+        // Agregar campos opcionales si se especifican
+        const extraFields = ["presentacion", "registro_sanitario", "regulacion", "codigo_barras"];
+        if (campos) {
+            campos.split(",").map(campo => campo.trim()).forEach(field => {
+                if (extraFields.includes(field)) selectFields[field] = true;
+            });
+        }
+
+        // Buscar laboratorio
         const laboratorio = await prisma.laboratorio.findUnique({
-            where: { id_laboratorio: laboratorioId }
+            where: { id_laboratorio: laboratorioId },
+            select: { id_laboratorio: true, nombre: true, createdAt: true, updatedAt: true }
         });
 
         if (!laboratorio) {
             return res.status(404).json({ msg: "Laboratorio no encontrado" });
         }
 
-        const totalProductos = await prisma.producto.count({ where: condiciones });
-        const productos = await prisma.producto.findMany({
-            where: condiciones,
-            include: {},
-            take: tamanoPagina,
-            skip,
-        });
+        // Obtener productos y total de productos
+        const [productos, totalProductos] = await Promise.all([
+            prisma.producto.findMany({
+                where: condiciones,
+                select: selectFields,
+                take: limit,
+                skip,
+            }),
+            prisma.producto.count({ where: condiciones })
+        ]);
 
         // Responder con la información completa
         res.status(200).json({
             laboratorio,
             productos: {
                 totalProductos,
-                totalPaginas: Math.ceil(totalProductos / tamanoPagina),
-                paginaActual: numeroPagina,
-                tamanoPagina,
+                totalPaginas: Math.ceil(totalProductos / limit),
+                paginaActual: page,
+                tamanoPagina: limit,
                 lista: productos,
             },
         });
@@ -167,7 +183,6 @@ const MostrarLaboratorio = async (req, res) => {
         res.status(500).json({ msg: "Error interno del servidor al obtener el laboratorio", error: error.message });
     }
 };
-
 
 // Crear un laboratorio
 const CrearLaboratorio = async (req, res) => {
@@ -229,39 +244,50 @@ const EliminarLaboratorio = async (req, res) => {
 };
 
 const exportarProductosLaboratorio = async (req, res) => {
-    const { id_laboratorio } = req.params;
-
     try {
+        const { id_laboratorio } = req.params;
         const idLaboratorio = Number(id_laboratorio);
+
         if (isNaN(idLaboratorio)) {
             return res.status(400).json({ mensaje: "ID de laboratorio inválido" });
         }
 
+        // Obtener el laboratorio
         const laboratorio = await prisma.laboratorio.findUnique({
             where: { id_laboratorio: idLaboratorio },
-            select: {
-                id_laboratorio: true,
-                nombre: true,
-                productos: {
-                    select: {
-                        descripcion: true,
-                        principio_activo: true,
-                        concentracion: true,
-                        registro_sanitario: true,
-                        cum_pactado: true,
-                        costo_compra: true,
-                        regulacion_tableta: true,
-                        regulacion_empaque: true,
-                    },
-                },
-            },
+            select: { id_laboratorio: true, nombre: true },
         });
 
         if (!laboratorio) {
             return res.status(404).json({ mensaje: "Laboratorio no encontrado" });
         }
 
-        if (laboratorio.productos.length === 0) {
+        // Parámetros de paginación con opción para descargar todos los productos
+        const all = req.query.all === "true";
+        const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
+        const limit = all ? undefined : Math.max(parseInt(req.query.limit, 10) || 100, 1);
+        const skip = all ? undefined : (page - 1) * limit;
+
+        // Obtener los productos
+        const productos = await prisma.producto.findMany({
+            where: { id_laboratorio: idLaboratorio },
+            select: {
+                descripcion: true,
+                concentracion: true,
+                presentacion: true,
+                registro_sanitario: true,
+                cum: true,
+                precio_unidad: true,
+                precio_presentacion: true,
+                iva: true,
+                regulacion: true,
+                codigo_barras: true,
+            },
+            take: limit,
+            skip,
+        });
+
+        if (productos.length === 0) {
             return res.status(404).json({ mensaje: "No hay productos en este laboratorio" });
         }
 
@@ -269,55 +295,59 @@ const exportarProductosLaboratorio = async (req, res) => {
         const workbook = new ExcelJS.Workbook();
         const worksheet = workbook.addWorksheet(laboratorio.nombre);
 
-        // Encabezados de la tabla
+        // Encabezados de la tabla con estilo
         const encabezados = [
-            "Descripción del Producto",
-            "Principio Activo",
-            "Concentración",
-            "Registro Sanitario",
-            "CUM Pactado",
-            "Costo de Compra (COP)",
-            "Regulación Tableta",
-            "Regulación Empaque",
+            "Descripción", "Concentración", "Presentación",
+            "Registro Sanitario", "CUM", "Precio Unidad (COP)",
+            "Precio Presentación (COP)", "IVA", "Regulación", "Código de Barras"
         ];
-        worksheet.addRow(encabezados);
-
-        // Llenar filas con los productos
-        laboratorio.productos.forEach((producto) => {
-            const fila = [
-                producto.descripcion ?? "Sin descripción",
-                producto.principio_activo || "",
-                producto.concentracion || "",
-                producto.registro_sanitario || "",
-                producto.cum_pactado || "",
-                producto.costo_compra ?? 0,
-                producto.regulacion_tableta ?? "N/A",
-                producto.regulacion_empaque ?? "N/A",
-            ];
-            worksheet.addRow(fila);
+        const headerRow = worksheet.addRow(encabezados);
+        headerRow.eachCell((cell) => {
+            cell.font = { bold: true };
+            cell.fill = {
+                type: "pattern",
+                pattern: "solid",
+                fgColor: { argb: "FFFFCC00" }, // Amarillo claro
+            };
+            cell.alignment = { horizontal: "center" };
         });
 
-        // Configurar encabezados para la descarga
+        // Función para formatear valores nulos
+        const formatValue = (value, defaultValue = "N/A") => value ?? defaultValue;
+
+        // Agregar filas con datos
+        productos.forEach((producto) => {
+            worksheet.addRow([
+                formatValue(producto.descripcion),
+                formatValue(producto.concentracion),
+                formatValue(producto.presentacion),
+                formatValue(producto.registro_sanitario),
+                formatValue(producto.cum),
+                formatValue(producto.precio_unidad, 0),
+                formatValue(producto.precio_presentacion, 0),
+                formatValue(producto.iva, 0),
+                formatValue(producto.regulacion, "No Aplica"),
+                formatValue(producto.codigo_barras),
+            ]);
+        });
+
+        // Configurar el nombre del archivo
         const nombreArchivo = `productos_${laboratorio.nombre.replace(/[^a-zA-Z0-9-_]/g, "_")}`;
-        res.setHeader(
-            "Content-Type",
-            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-        );
-        res.setHeader(
-            "Content-Disposition",
-            `attachment; filename="${nombreArchivo}_productos.xlsx"`
-        );
+        res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        const fileNameSuffix = all ? "_completo" : `_pagina${page}`;
+        res.setHeader("Content-Disposition", `attachment; filename="${nombreArchivo}${fileNameSuffix}.xlsx"`);
 
         // Enviar el archivo Excel como respuesta
         await workbook.xlsx.write(res);
-        if (!res.finished) res.end();
+        res.end();
+
     } catch (error) {
         console.error("Error al exportar productos del laboratorio:", error);
         res.status(500).json({ mensaje: "Error interno del servidor" });
     }
 };
 
-export  {
+export {
     MostrarLaboratorios,
     MostrarLaboratorio,
     CrearLaboratorio,

@@ -133,21 +133,23 @@ model TarifarioOnProducto {
 }
 
 model Producto {
-  id_producto        Int    @id @default(autoincrement()) @map("id_producto")
-  codigo_magister    String @unique
-  cum_pactado        String @unique
-  descripcion        String
-  principio_activo   String
-  concentracion      String
-  registro_sanitario String @unique
-  id_laboratorio     Int    @map("laboratorio_id")
-  costo_compra       Int
-  regulacion_tableta Int?
-  regulacion_empaque Int?
+  id_producto         Int     @id @default(autoincrement()) @map("id_producto")
+  cum                 String  @unique
+  descripcion         String
+  concentracion       String
+  presentacion        String
+  registro_sanitario  String  @unique
+  id_laboratorio      Int     @map("laboratorio_id")
+  precio_unidad       Decimal
+  precio_presentacion Decimal
+  iva                 Decimal
+  regulacion          String?
+  codigo_barras       String  @unique
 
-  laboratorio Laboratorio           @relation(fields: [id_laboratorio], references: [id_laboratorio])
-  tarifarios  TarifarioOnProducto[]
+  laboratorio         Laboratorio           @relation(fields: [id_laboratorio], references: [id_laboratorio])
+  tarifarios         TarifarioOnProducto[]
 
-  createdAt DateTime @default(now()) @map("fecha_creacion")
-  updatedAt DateTime @updatedAt @map("fecha_actualizacion")
+
+  createdAt          DateTime @default(now()) @map("fecha_creacion")
+  updatedAt          DateTime @updatedAt @map("fecha_actualizacion")
 }
