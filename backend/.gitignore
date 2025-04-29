@@ -1,0 +1,39 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Dependencias
+node_modules
+
+# Build de producción
+dist
+dist-ssr
+
+# Archivos locales y configuraciones
+*.local
+.env.local
+.env.*.local
+
+# Archivos de lock
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Configuración de editores
+.vscode/*
+!.vscode/extensions.json
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Archivos del sistema operativo
+.DS_Store
+Thumbs.db
+.vercel
