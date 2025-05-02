@@ -1,53 +1,34 @@
 import { useState, useEffect, useCallback } from "react";
-import { useParams } from "react-router-dom";
-import { fetchTarifarioPorId, ProductoEnTarifario } from "../services/tarifariosService";
+
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
 import { toast } from "react-toastify";
+import { fetchProductos, Producto, ProductParams } from "../../services/Productos/productosService";
 
-const TarifariosPage = () => {
-  const { id_tarifario } = useParams<{ id_tarifario: string }>();
-  const [productos, setProductos] = useState<ProductoEnTarifario[]>([]);
+const Productos = () => {
+  const [productos, setProductos] = useState<Producto[]>([]);
   const [search, setSearch] = useState("");
   const [selectedFilter, setSelectedFilter] = useState("");
   const [selectedFilterRegulacion, setSelectedFilterRegulacion] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
-
-  // Estados para columnas adicionales
   const [selectedExtraFields, setSelectedExtraFields] = useState<string[]>([]);
-  const [tempSelectedExtraFields, setTempSelectedExtraFields] = useState<string[]>(selectedExtraFields);
+
+  // Estado para controlar el modal de selección de columnas
   const [showColumnSelector, setShowColumnSelector] = useState(false);
+  // Estado temporal para manejar cambios en el modal sin afectar inmediatamente la consulta
+  const [tempSelectedExtraFields, setTempSelectedExtraFields] = useState<string[]>(selectedExtraFields);
 
   const itemsPerPage = 10;
 
-  // Lista de campos extra disponibles
+  // Lista de campos extra disponibles con sus etiquetas
   const extraFieldsList = [
     { field: "presentacion", label: "Presentación" },
     { field: "registro_sanitario", label: "Registro Sanitario" },
     { field: "regulacion", label: "Regulación" },
     { field: "codigo_barras", label: "Código de Barras" },
   ];
-
-  // Construir filtros de búsqueda y paginación
-  const buildFilters = useCallback(() => {
-    const filters: Record<string, string> = {
-      page: currentPage.toString(),
-      limit: itemsPerPage.toString(),
-    };
-
-    if (selectedFilter && search) {
-      filters[selectedFilter] = search;
-    }
-    if (["regulados", "no_regulados"].includes(selectedFilterRegulacion)) {
-      filters["con_regulacion"] = selectedFilterRegulacion;
-    }
-    if (selectedExtraFields.length > 0) {
-      filters["campos"] = selectedExtraFields.join(",");
-    }
-    return filters;
-  }, [currentPage, selectedFilter, search, selectedFilterRegulacion, selectedExtraFields]);
 
   // Manejo de la selección temporal en el modal
   const toggleTempExtraField = (field: string) => {
@@ -68,43 +49,49 @@ const TarifariosPage = () => {
     setShowColumnSelector(false);
   };
 
-  // Función para obtener el tarifario y sus productos utilizando los filtros generados
-  const fetchTarifarioData = useCallback(async () => {
-    if (!id_tarifario) return;
-    const tarifarioId = Number(id_tarifario);
-    if (isNaN(tarifarioId)) {
-      toast.error("ID de tarifario no válido");
-      return;
-    }
+  const fetchProductosData = useCallback(async () => {
     setLoading(true);
     try {
-      const filters = buildFilters();
-      const tarifarioResponse = await fetchTarifarioPorId(tarifarioId, currentPage, itemsPerPage, filters);
-      setProductos(tarifarioResponse.productos.lista);
-      setTotalPages(tarifarioResponse.productos.totalPaginas);
+      const filters: Partial<ProductParams> = {
+        page: currentPage,
+        limit: itemsPerPage,
+        con_regulacion:
+          selectedFilterRegulacion === "regulados" || selectedFilterRegulacion === "no_regulados"
+            ? selectedFilterRegulacion
+            : undefined,
+      };
+
+      if (selectedFilter && search) {
+        if (["descripcion", "codigo_barras", "cum"].includes(selectedFilter)) {
+          (filters as Record<string, string>)[selectedFilter] = search;
+        }
+      }
+
+      // Si se han seleccionado columnas extra, se unen en una cadena separada por comas
+      if (selectedExtraFields.length > 0) {
+        filters.campos = selectedExtraFields.join(",");
+      }
+
+      const fetchedProductos = await fetchProductos(filters);
+      setProductos(fetchedProductos.productos);
+      setTotalPages(fetchedProductos.totalPaginas);
     } catch (error) {
-      console.error("Error al cargar el tarifario:", error);
-      toast.error("Error al cargar el tarifario. Ver consola para más detalles.");
+      console.error("Error al obtener productos:", error);
+      toast.error("Error al cargar los productos");
       setProductos([]);
     } finally {
       setLoading(false);
     }
-  }, [id_tarifario, currentPage, itemsPerPage, buildFilters]);
+  }, [search, currentPage, selectedFilter, selectedFilterRegulacion, selectedExtraFields]);
 
-  // Actualizar los productos cuando cambie la página o los filtros
   useEffect(() => {
-    fetchTarifarioData();
-  }, [currentPage, fetchTarifarioData]);
-
-  // Reinicia la página a 1 cuando cambian los filtros o búsqueda
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [search, selectedFilter, selectedFilterRegulacion, selectedExtraFields]);
+    fetchProductosData();
+  }, [fetchProductosData]);
 
   return (
-    <div className="relative p-6 bg-sky-900 min-h-screen flex flex-col">
-      {/* Sección de filtros y controles */}
-      <div className="mb-6 flex flex-wrap gap-4 items-center">
+    <div className="relative p-4 bg-sky-900 min-h-screen flex flex-col">
+      {/* Sección de filtros principales */}
+      <div className="mb-4 flex flex-wrap gap-4 items-center">
         <div className="relative w-full sm:max-w-xs">
           <input
             type="text"
@@ -130,10 +117,11 @@ const TarifariosPage = () => {
         >
           <option value="">Filtro</option>
           <option value="descripcion">Descripción</option>
+          <option value="codigo_barras">Código de Barras</option>
           <option value="cum">CUM</option>
         </select>
 
-        {/* Mostrar el filtro de regulación solo si la columna "regulacion" está seleccionada */}
+        {/* Mostrar el filtro solo si la columna "Regulación" está seleccionada */}
         {selectedExtraFields.includes("regulacion") && (
           <select
             value={selectedFilterRegulacion}
@@ -195,17 +183,21 @@ const TarifariosPage = () => {
       <div className="flex justify-between items-center mb-4 text-sm w-full">
         <button
           onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-          className={`py-2 px-3 bg-indigo-900 hover:bg-gray-400 text-white rounded-md ${currentPage === 1 ? "invisible" : ""}`}
+          className={`py-2 px-3 bg-blue-950 hover:bg-gray-400 text-white rounded-md ${currentPage === 1 ? "invisible" : ""
+            }`}
           style={{ width: "100px" }}
         >
           Anterior
         </button>
+
         <div className="flex-grow text-center text-white">
           Página {currentPage} de {totalPages}
         </div>
+
         <button
           onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-          className={`py-2 px-3 bg-indigo-900 hover:bg-gray-400 text-white rounded-md ${currentPage === totalPages ? "invisible" : ""}`}
+          className={`py-2 px-3 bg-blue-950 hover:bg-gray-400 text-white rounded-md ${currentPage === totalPages ? "invisible" : ""
+            }`}
           style={{ width: "100px" }}
         >
           Siguiente
@@ -214,7 +206,7 @@ const TarifariosPage = () => {
 
       {/* Tabla de productos */}
       {loading ? (
-        <div className="text-center text-white">Cargando tarifario...</div>
+        <div className="text-center text-white">Cargando...</div>
       ) : (
         <div className="overflow-x-auto shadow-lg rounded-lg">
           <table className="min-w-full text-sm">
@@ -222,21 +214,15 @@ const TarifariosPage = () => {
               <tr>
                 <th className="p-2">CUM</th>
                 <th className="p-2">Descripción</th>
-                {selectedExtraFields.includes("presentacion") && (
-                  <th className="p-2">Presentación</th>
-                )}
+                {selectedExtraFields.includes("presentacion") && <th className="p-2">Presentación</th>}
                 <th className="p-2">Concentración</th>
+                <th className="p-2">Laboratorio</th>
                 <th className="p-2">Precio Unidad</th>
-                <th className="p-2">Precio Presentación</th>
-                {selectedExtraFields.includes("registro_sanitario") && (
-                  <th className="p-2">Registro Sanitario</th>
-                )}
-                {selectedExtraFields.includes("regulacion") && (
-                  <th className="p-2">Regulación</th>
-                )}
-                {selectedExtraFields.includes("codigo_barras") && (
-                  <th className="p-2">Código de Barras</th>
-                )}
+                <th className="p-2">Precio Presentacion</th>
+                {/* Se renderizan las columnas adicionales de forma dinámica */}
+                {selectedExtraFields.includes("registro_sanitario") && <th className="p-2">Registro Sanitario</th>}
+                {selectedExtraFields.includes("regulacion") && <th className="p-2">Regulación</th>}
+                {selectedExtraFields.includes("codigo_barras") && <th className="p-2">Código de Barras</th>}
               </tr>
             </thead>
             <tbody className="bg-stone-200">
@@ -248,7 +234,8 @@ const TarifariosPage = () => {
                     {selectedExtraFields.includes("presentacion") && (
                       <td className="p-2 text-center">{producto.presentacion ?? "-"}</td>
                     )}
-                    <td className="p-2 text-center">{producto.concentracion}</td>
+                    <td className="p-2 text-center">{producto.concentracion ?? "-"}</td>
+                    <td className="p-2 text-center">{producto.laboratorio?.nombre}</td>
                     <td className="p-2 text-center">
                       {new Intl.NumberFormat("es-CO", {
                         style: "currency",
@@ -274,16 +261,7 @@ const TarifariosPage = () => {
                 ))
               ) : (
                 <tr>
-                  <td
-                    colSpan={
-                      6 +
-                      (selectedExtraFields.includes("presentacion") ? 1 : 0) +
-                      (selectedExtraFields.includes("registro_sanitario") ? 1 : 0) +
-                      (selectedExtraFields.includes("regulacion") ? 1 : 0) +
-                      (selectedExtraFields.includes("codigo_barras") ? 1 : 0)
-                    }
-                    className="text-center py-4 text-black"
-                  >
+                  <td colSpan={6 + selectedExtraFields.length} className="text-center py-4 text-black">
                     No hay productos disponibles
                   </td>
                 </tr>
@@ -296,4 +274,4 @@ const TarifariosPage = () => {
   );
 };
 
-export default TarifariosPage;
+export default Productos;

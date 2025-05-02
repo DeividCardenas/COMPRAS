@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { fetchEPS, EPS } from "../services/epsService";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, X, Building2, Loader2 } from "lucide-react";
+import { EPS, fetchEPS } from "../../services/EPS/epsService";
 
 const EPSPage = () => {
   const [epsList, setEpsList] = useState<EPS[]>([]);

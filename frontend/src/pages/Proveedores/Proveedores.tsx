@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { fetchProveedores } from '../services/proveedoresService';
+
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
+import { fetchProveedores } from '../../services/Proveedores/proveedoresService';
 
 interface Proveedor {
   id_proveedor: number;

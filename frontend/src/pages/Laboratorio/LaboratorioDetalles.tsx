@@ -1,9 +1,10 @@
 import { useState, useEffect, useCallback } from "react";
 import { useParams } from "react-router-dom";
-import { fetchProductsByLaboratory, Producto } from "../services/laboratoriosService";
+
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
 import { toast } from "react-toastify";
+import { fetchProductsByLaboratory, Producto } from "../../services/Laboratorio/laboratoriosService";
 
 const LaboratorioDetalles = () => {
   const { laboratorioId } = useParams<{ laboratorioId: string }>();

@@ -1,9 +1,9 @@
 import { useState, useEffect, useCallback } from "react";
-import { fetchEmpresas, Empresa } from "../services/empresasService";
-import { fetchLaboratories, Laboratorio } from "../services/laboratoriosService";
 import { Link, useNavigate } from "react-router-dom";
 import { X, FlaskConical, ChevronLeft, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { Empresa, fetchEmpresas } from "../../services/Empresa/empresasService";
+import { fetchLaboratories, Laboratorio } from "../../services/Laboratorio/laboratoriosService";
 
 const EmpresasPage = () => {
   const [empresas, setEmpresas] = useState<Empresa[]>([]);

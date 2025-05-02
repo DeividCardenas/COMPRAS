@@ -1,4 +1,5 @@
-import { axiosInstance, setBaseURL } from "./axiosInstance";
+import { axiosInstance, setBaseURL } from "../Shared/axiosInstance";
+
 
 // Definir la estructura del producto en el tarifario
 export interface ProductoEnTarifario {

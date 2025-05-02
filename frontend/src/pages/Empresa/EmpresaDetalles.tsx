@@ -1,8 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
-import { fetchVentas } from '../services/ventasService';
+
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
+import { fetchVentas } from '../../services/Ventas/ventasService';
 
 interface Venta {
   id_ventas: number;

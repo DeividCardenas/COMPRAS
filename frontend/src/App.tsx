@@ -3,15 +3,17 @@ import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-import Login from "./pages/Login";
-import Menu from "./pages/Menu";
-import Productos from "./pages/Productos";
-import LaboratorioDetalles from "./pages/LaboratorioDetalles";
-import Proveedores from "./pages/Proveedores";
-import EmpresasPage from "./pages/Empresas";
-import EPSPage from "./pages/EPS";
-import TarifariosPage from "./pages/Tarifario";
-import EmpresaDetalles from "./pages/EmpresaDetalles";
+
+import Menu from "./pages/Menu/Menu";
+import LaboratorioDetalles from "./pages/Laboratorio/LaboratorioDetalles";
+import EmpresasPage from "./pages/Empresa/Empresas";
+import EmpresaDetalles from "./pages/Empresa/EmpresaDetalles";
+import Productos from "./pages/Productos/Productos";
+import Login from "./pages/Auth/Login";
+import Proveedores from "./pages/Proveedores/Proveedores";
+import EPSPage from "./pages/EPS/EPS";
+import TarifariosPage from "./pages/Tarifario/Tarifario";
+import AdminPage from "./pages/Admin/AdminPage";
 
 const App: React.FC = () => {
   return (
@@ -31,6 +33,7 @@ const App: React.FC = () => {
                 <Route path="/EPS" element={<EPSPage />} />
                 <Route path="/tarifario/:id_tarifario" element={<TarifariosPage />} />
                 <Route path="/Empresa/:id_empresa" element={<EmpresaDetalles />} />
+                <Route path="/Admin" element={<AdminPage />} />
               </Routes>
             }
           />

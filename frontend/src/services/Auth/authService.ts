@@ -1,4 +1,5 @@
-import { axiosInstance, setBaseURL } from "./axiosInstance";
+import { axiosInstance, setBaseURL } from "../Shared/axiosInstance";
+
 
 interface LoginResponse {
   usuario: {

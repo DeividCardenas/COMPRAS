@@ -1,7 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { ShoppingBag, LogOut, Factory, Briefcase } from "lucide-react";
-import { useAuth } from "../context/useAuth";
+import { ShoppingBag, LogOut, Factory, Briefcase, Settings } from "lucide-react";
+import { useAuth } from "../../context/useAuth";
 
 const Menu: React.FC = () => {
   const navigate = useNavigate();
@@ -61,7 +61,20 @@ const Menu: React.FC = () => {
         <LogOut size={20} />
         Cerrar Sesión
       </button>
+
+      <button
+        onClick={() => handleNavigation("/Admin")}
+        className="absolute bottom-4 right-4 bg-white p-3 rounded-full shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all focus:outline-none group"
+        aria-label="Ir a la página de Administración"
+      >
+        <Settings size={32} className="text-indigo-900" />
+        <span className="absolute bottom-full right-0 mb-2 w-max px-3 py-1 bg-indigo-900 text-white text-sm rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition-opacity">
+          Ir a la página de Admin
+        </span>
+      </button>
     </div>
+
+
   );
 };
 

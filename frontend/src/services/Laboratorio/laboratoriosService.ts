@@ -1,5 +1,4 @@
-import { axiosInstance, setBaseURL } from "./axiosInstance";
-
+import { axiosInstance, setBaseURL } from "../Shared/axiosInstance";
 import axios from "axios";
 
 // Definir la interfaz para los productos

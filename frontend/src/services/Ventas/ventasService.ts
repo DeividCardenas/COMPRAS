@@ -1,4 +1,5 @@
-import { axiosInstance, setBaseURL } from "./axiosInstance";
+import { axiosInstance, setBaseURL } from "../Shared/axiosInstance";
+
 
 // Definir un tipo para los parámetros de búsqueda de ventas
 interface SalesParams {

@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Factory, ShoppingBag, Home, Briefcase, LogOut, Menu, X } from 'lucide-react';
-import { useAuth } from '../context/useAuth';
+import { useAuth } from '../../context/useAuth';
+
 
 const Navbar: React.FC = () => {
   const { setToken, setUser } = useAuth();
