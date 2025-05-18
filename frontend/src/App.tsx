@@ -14,6 +14,7 @@ import Proveedores from "./pages/Proveedores/Proveedores";
 import EPSPage from "./pages/EPS/EPS";
 import TarifariosPage from "./pages/Tarifario/Tarifario";
 import AdminPage from "./pages/Admin/AdminPage";
+import CrearPage from "./pages/Admin/CrearPage";
 
 const App: React.FC = () => {
   return (
@@ -34,6 +35,7 @@ const App: React.FC = () => {
                 <Route path="/tarifario/:id_tarifario" element={<TarifariosPage />} />
                 <Route path="/Empresa/:id_empresa" element={<EmpresaDetalles />} />
                 <Route path="/Admin" element={<AdminPage />} />
+                <Route path="/admin/crear" element={<CrearPage />} />
               </Routes>
             }
           />

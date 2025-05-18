@@ -64,6 +64,17 @@ interface Empresa {
   nombre: string;
 }
 
+// Interfaces para actualización
+interface UserUpdateData {
+  username?: string;
+  email?: string;
+  rol_id?: number;
+}
+
+interface GenericUpdateData {
+  nombre?: string;
+}
+
 // Alias de tipo para los parámetros de consulta
 type QueryParams = Record<string, string | number | undefined>;
 
@@ -151,5 +162,184 @@ export const fetchEmpresas = async (
   } catch (error) {
     console.error("Error al obtener empresas:", error);
     throw new Error("No se pudo obtener las empresas");
+  }
+};
+
+// Funciones de actualización
+
+// Actualizar usuario
+export const updateUser = async (
+  userId: number, 
+  userData: UserUpdateData
+): Promise<any> => {
+  try {
+    const response = await axiosInstance.put(
+      `http://localhost:2000/pec/usuario/${userId}`,
+      userData
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error al actualizar el usuario:", error);
+    throw new Error("No se pudo actualizar el usuario");
+  }
+};
+
+// Actualizar EPS
+export const updateEps = async (
+  epsId: number,
+  epsData: GenericUpdateData
+): Promise<any> => {
+  try {
+    setBaseURL("eps");
+    const response = await axiosInstance.put(
+      `http://localhost:2000/pec/eps/${epsId}`,
+      epsData
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error al actualizar la EPS:", error);
+    throw new Error("No se pudo actualizar la EPS");
+  }
+};
+
+// Actualizar Laboratorio
+export const updateLaboratorio = async (
+  labId: number,
+  labData: GenericUpdateData
+): Promise<any> => {
+  try {
+    setBaseURL("laboratorios");
+    const response = await axiosInstance.put(
+      `http://localhost:2000/pec/laboratorio/${labId}`,
+      labData
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error al actualizar el laboratorio:", error);
+    throw new Error("No se pudo actualizar el laboratorio");
+  }
+};
+
+// Actualizar Empresa
+export const updateEmpresa = async (
+  empresaId: number,
+  empresaData: GenericUpdateData
+): Promise<any> => {
+  try {
+    setBaseURL("empresas");
+    const response = await axiosInstance.put(
+      `http://localhost:2000/pec/empresa/${empresaId}`,
+      empresaData
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error al actualizar la empresa:", error);
+    throw new Error("No se pudo actualizar la empresa");
+  }
+};
+
+// Funciones de eliminación
+
+// Eliminar usuario
+export const deleteUser = async (userId: number): Promise<any> => {
+  try {
+    const response = await axiosInstance.delete(
+      `http://localhost:2000/pec/usuario/${userId}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error al eliminar el usuario:", error);
+    throw new Error("No se pudo eliminar el usuario");
+  }
+};
+
+// Eliminar EPS
+export const deleteEps = async (epsId: number): Promise<any> => {
+  try {
+    setBaseURL("eps");
+    const response = await axiosInstance.delete(
+      `http://localhost:2000/pec/eps/${epsId}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error al eliminar la EPS:", error);
+    throw new Error("No se pudo eliminar la EPS");
+  }
+};
+
+// Eliminar Laboratorio
+export const deleteLaboratorio = async (labId: number): Promise<any> => {
+  try {
+    setBaseURL("laboratorios");
+    const response = await axiosInstance.delete(
+      `http://localhost:2000/pec/laboratorio/${labId}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error al eliminar el laboratorio:", error);
+    throw new Error("No se pudo eliminar el laboratorio");
+  }
+};
+
+// Eliminar Empresa
+export const deleteEmpresa = async (empresaId: number): Promise<any> => {
+  try {
+    setBaseURL("empresas");
+    const response = await axiosInstance.delete(
+      `http://localhost:2000/pec/empresa/${empresaId}`
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error al eliminar la empresa:", error);
+    throw new Error("No se pudo eliminar la empresa");
+  }
+};
+ 
+//agregar eps
+export const addEps = async (epsData: GenericUpdateData): Promise<any> => {
+  try {
+    setBaseURL("eps");
+    const response = await axiosInstance.post(
+      "http://localhost:2000/pec/eps",
+      epsData
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error al agregar la EPS:", error);
+    throw new Error("No se pudo agregar la EPS");
+  }
+};
+
+//agregar laboratorio
+export const addLaboratorio = async (
+  labData: GenericUpdateData
+): Promise<any> => {
+  try {
+    setBaseURL("laboratorios");
+    const response = await axiosInstance.post(
+      "http://localhost:2000/pec/laboratorio",
+      labData
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error al agregar el laboratorio:", error);
+    throw new Error("No se pudo agregar el laboratorio");
+  }
+};
+
+//agregar empresa
+export const addEmpresa = async (
+  empresaData: GenericUpdateData
+): Promise<any> => {
+  try {
+    setBaseURL("empresas");
+    const response = await axiosInstance.post(
+      "http://localhost:2000/pec/empresa",
+      empresaData
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error al agregar la empresa:", error);
+    throw new Error("No se pudo agregar la empresa");
   }
 };
