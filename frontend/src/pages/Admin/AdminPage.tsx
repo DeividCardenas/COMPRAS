@@ -314,7 +314,7 @@ const AdminDashboard: React.FC = () => {
           {/* Botón de redirección a Crear */}
           <div className="w-full flex justify-end mb-4">
             <button
-              onClick={() => navigate("/admin/crear")}
+              onClick={() => navigate("/Admin/Crear")}
               className="bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-2 rounded-2xl shadow transition"
             >
               Crear

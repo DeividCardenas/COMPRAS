@@ -35,7 +35,7 @@ const App: React.FC = () => {
                 <Route path="/tarifario/:id_tarifario" element={<TarifariosPage />} />
                 <Route path="/Empresa/:id_empresa" element={<EmpresaDetalles />} />
                 <Route path="/Admin" element={<AdminPage />} />
-                <Route path="/admin/crear" element={<CrearPage />} />
+                <Route path="/Admin/Crear" element={<CrearPage />} />
               </Routes>
             }
           />
