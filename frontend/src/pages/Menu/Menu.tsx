@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { ShoppingBag, LogOut, Factory, Briefcase, Settings } from "lucide-react";
+import { ShoppingBag, LogOut, Factory, Briefcase, Settings, Truck, FlaskConical, FileText } from "lucide-react";
 import { useAuth } from "../../context/useAuth";
 
 const Menu: React.FC = () => {
@@ -31,7 +31,12 @@ const Menu: React.FC = () => {
         </span>
       </button>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-8 w-full max-w-6xl px-4">
+      <div className="text-center mb-8">
+        <h1 className="text-4xl font-bold text-white mb-2">Panel de Control</h1>
+        <p className="text-xl text-white">Bienvenido, {user?.email || 'Usuario'}</p>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-3 gap-8 w-full max-w-6xl px-4">
         <button
           onClick={() => handleNavigation("/Empresas")}
           className="bg-white rounded-3xl shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all p-6 flex flex-col items-center justify-center text-center focus:outline-none"
@@ -50,6 +55,36 @@ const Menu: React.FC = () => {
           <ShoppingBag size={60} className="text-indigo-900" />
           <h3 className="text-3xl font-semibold text-indigo-900 mt-5">Productos</h3>
           <p className="text-gray-600 mt-2">Gestiona tus productos aquí</p>
+        </button>
+
+        <button
+          onClick={() => handleNavigation("/Proveedores")}
+          className="bg-white rounded-3xl shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all p-6 flex flex-col items-center justify-center text-center focus:outline-none"
+          aria-label="Ir a la sección de Proveedores"
+        >
+          <Truck size={60} className="text-indigo-900" />
+          <h3 className="text-3xl font-semibold text-indigo-900 mt-5">Proveedores</h3>
+          <p className="text-gray-600 mt-2">Gestiona tus proveedores aquí</p>
+        </button>
+
+        <button
+          onClick={() => handleNavigation("/Laboratorio")}
+          className="bg-white rounded-3xl shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all p-6 flex flex-col items-center justify-center text-center focus:outline-none"
+          aria-label="Ir a la sección de Laboratorio"
+        >
+          <FlaskConical size={60} className="text-indigo-900" />
+          <h3 className="text-3xl font-semibold text-indigo-900 mt-5">Laboratorio</h3>
+          <p className="text-gray-600 mt-2">Gestiona el laboratorio aquí</p>
+        </button>
+
+        <button
+          onClick={() => handleNavigation("/Tarifario")}
+          className="bg-white rounded-3xl shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all p-6 flex flex-col items-center justify-center text-center focus:outline-none"
+          aria-label="Ir a la sección de Tarifario"
+        >
+          <FileText size={60} className="text-indigo-900" />
+          <h3 className="text-3xl font-semibold text-indigo-900 mt-5">Tarifario</h3>
+          <p className="text-gray-600 mt-2">Gestiona el tarifario aquí</p>
         </button>
       </div>
 

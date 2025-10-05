@@ -1,11 +1,14 @@
 import { useState, useEffect, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faTimes } from "@fortawesome/free-solid-svg-icons";
+import { ArrowLeft } from "lucide-react";
 import { toast } from "react-toastify";
 import { fetchProductos, Producto, ProductParams } from "../../services/Productos/productosService";
 
 const Productos = () => {
+  const navigate = useNavigate();
   const [productos, setProductos] = useState<Producto[]>([]);
   const [search, setSearch] = useState("");
   const [selectedFilter, setSelectedFilter] = useState("");
@@ -89,26 +92,36 @@ const Productos = () => {
   }, [fetchProductosData]);
 
   return (
-    <div className="relative p-4 bg-sky-900 min-h-screen flex flex-col">
-      {/* Sección de filtros principales */}
-      <div className="mb-4 flex flex-wrap gap-4 items-center">
-        <div className="relative w-full sm:max-w-xs">
-          <input
-            type="text"
-            placeholder="Buscar productos..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="bg-zinc-100 rounded-lg p-2 text-gray-950 w-full shadow-md pr-8 text-sm"
-          />
-          {search && (
-            <button
-              onClick={() => setSearch("")}
-              className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-950 text-lg"
-            >
-              <FontAwesomeIcon icon={faTimes} />
-            </button>
-          )}
-        </div>
+    <div className="min-h-screen bg-sky-900 flex flex-col">
+      <header className="bg-sky-800 shadow-lg p-4 flex items-center">
+        <button
+          onClick={() => navigate('/Menu')}
+          className="flex items-center text-white hover:text-gray-200 transition-colors px-4 py-2 rounded-lg hover:bg-sky-700"
+        >
+          <ArrowLeft size={24} className="mr-2" />
+          <span className="font-medium">Volver al Menú</span>
+        </button>
+      </header>
+      <div className="flex-1 p-4">
+        {/* Sección de filtros principales */}
+        <div className="mb-4 flex flex-wrap gap-4 items-center">
+          <div className="relative w-full sm:max-w-xs">
+            <input
+              type="text"
+              placeholder="Buscar productos..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="bg-zinc-100 rounded-lg p-2 text-gray-950 w-full shadow-md pr-8 text-sm"
+            />
+            {search && (
+              <button
+                onClick={() => setSearch("")}
+                className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-950 text-lg"
+              >
+                <FontAwesomeIcon icon={faTimes} />
+              </button>
+            )}
+          </div>
 
         <select
           value={selectedFilter}
@@ -142,42 +155,6 @@ const Productos = () => {
           Seleccionar columnas
         </button>
       </div>
-
-      {/* Modal para seleccionar columnas adicionales */}
-      {showColumnSelector && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white rounded-lg p-6 w-11/12 max-w-md">
-            <h2 className="text-xl font-bold mb-4">Selecciona campos adicionales</h2>
-            <div className="flex flex-col gap-3">
-              {extraFieldsList.map((item) => (
-                <label key={item.field} className="flex items-center">
-                  <input
-                    type="checkbox"
-                    checked={tempSelectedExtraFields.includes(item.field)}
-                    onChange={() => toggleTempExtraField(item.field)}
-                    className="mr-2"
-                  />
-                  {item.label}
-                </label>
-              ))}
-            </div>
-            <div className="mt-6 flex justify-end gap-4">
-              <button
-                onClick={handleCancelColumnSelection}
-                className="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400 text-black"
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={handleApplyColumnSelection}
-                className="px-4 py-2 rounded bg-indigo-600 hover:bg-indigo-700 text-white"
-              >
-                Aplicar
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Paginación */}
       <div className="flex justify-between items-center mb-4 text-sm w-full">
@@ -268,6 +245,43 @@ const Productos = () => {
               )}
             </tbody>
           </table>
+        </div>
+      )}
+      </div>
+
+      {/* Modal para seleccionar columnas adicionales */}
+      {showColumnSelector && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white rounded-lg p-6 w-11/12 max-w-md">
+            <h2 className="text-xl font-bold mb-4">Selecciona campos adicionales</h2>
+            <div className="flex flex-col gap-3">
+              {extraFieldsList.map((item) => (
+                <label key={item.field} className="flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={tempSelectedExtraFields.includes(item.field)}
+                    onChange={() => toggleTempExtraField(item.field)}
+                    className="mr-2"
+                  />
+                  {item.label}
+                </label>
+              ))}
+            </div>
+            <div className="mt-6 flex justify-end gap-4">
+              <button
+                onClick={handleCancelColumnSelection}
+                className="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400 text-black"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleApplyColumnSelection}
+                className="px-4 py-2 rounded bg-indigo-600 hover:bg-indigo-700 text-white"
+              >
+                Aplicar
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

@@ -5,6 +5,7 @@ import "react-toastify/dist/ReactToastify.css";
 
 
 import Menu from "./pages/Menu/Menu";
+import Laboratorios from "./pages/Laboratorio/Laboratorio";
 import LaboratorioDetalles from "./pages/Laboratorio/LaboratorioDetalles";
 import EmpresasPage from "./pages/Empresa/Empresas";
 import EmpresaDetalles from "./pages/Empresa/EmpresaDetalles";
@@ -13,6 +14,7 @@ import Login from "./pages/Auth/Login";
 import Proveedores from "./pages/Proveedores/Proveedores";
 import EPSPage from "./pages/EPS/EPS";
 import TarifariosPage from "./pages/Tarifario/Tarifario";
+import TarifariosList from "./pages/Tarifario/TarifariosList";
 import AdminPage from "./pages/Admin/AdminPage";
 import CrearPage from "./pages/Admin/CrearPage";
 
@@ -28,10 +30,12 @@ const App: React.FC = () => {
               <Routes>
                 <Route path="/Menu" element={<Menu />} />
                 <Route path="/Productos" element={<Productos />} />
+                <Route path="/Laboratorio" element={<Laboratorios />} />
                 <Route path="/laboratorio/:laboratorioId" element={<LaboratorioDetalles />} />
                 <Route path="/Proveedores" element={<Proveedores />} />
                 <Route path="/Empresas" element={<EmpresasPage />} />
                 <Route path="/EPS" element={<EPSPage />} />
+                <Route path="/tarifario" element={<TarifariosList />} />
                 <Route path="/tarifario/:id_tarifario" element={<TarifariosPage />} />
                 <Route path="/Empresa/:id_empresa" element={<EmpresaDetalles />} />
                 <Route path="/Admin" element={<AdminPage />} />

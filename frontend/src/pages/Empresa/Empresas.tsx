@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { X, FlaskConical, ChevronLeft, ChevronRight } from "lucide-react";
+import { X, FlaskConical, ChevronLeft, ChevronRight, ArrowLeft } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Empresa, fetchEmpresas } from "../../services/Empresa/empresasService";
 import { fetchLaboratories, Laboratorio } from "../../services/Laboratorio/laboratoriosService";
@@ -66,15 +66,25 @@ const EmpresasPage = () => {
   }, [labPage, detailSearch, selectedEmpresa]);
 
   return (
-    <div className="relative p-6 bg-sky-900 min-h-screen flex flex-col">
-      <motion.h1
-        className="text-3xl font-bold text-white mb-6 text-center"
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: "easeOut" }}
-      >
-        Gestión de Empresas
-      </motion.h1>
+    <div className="min-h-screen bg-sky-900 flex flex-col">
+      <header className="bg-sky-800 shadow-lg p-4 flex items-center">
+        <button
+          onClick={() => navigate('/Menu')}
+          className="flex items-center text-white hover:text-gray-200 transition-colors px-4 py-2 rounded-lg hover:bg-sky-700"
+        >
+          <ArrowLeft size={24} className="mr-2" />
+          <span className="font-medium">Volver al Menú</span>
+        </button>
+      </header>
+      <div className="flex-1 p-6">
+        <motion.h1
+          className="text-3xl font-bold text-white mb-6 text-center"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+        >
+          Gestión de Empresas
+        </motion.h1>
 
       {loading ? (
         <div className="text-center text-white">Cargando...</div>
@@ -118,10 +128,12 @@ const EmpresasPage = () => {
         </div>
       )}
 
+      </div>
+
       <AnimatePresence>
         {selectedEmpresa && activeModal === "laboratorios" && (
           <motion.div
-            className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center z-50"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -137,6 +149,12 @@ const EmpresasPage = () => {
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex justify-between items-center mb-6">
+                <button
+                  onClick={() => setSelectedEmpresa(null)}
+                  className="text-white bg-indigo-700 hover:bg-indigo-600 rounded px-3 py-1 font-semibold"
+                >
+                  Volver
+                </button>
                 <h2 className="text-2xl font-bold text-white">Laboratorios de {selectedEmpresa.nombre}</h2>
                 <button onClick={() => setSelectedEmpresa(null)} className="text-gray-500 hover:text-gray-800">
                   <X size={24} />
@@ -222,7 +240,7 @@ const EmpresasPage = () => {
       <AnimatePresence>
         {selectedEmpresa && activeModal === 'tarifarios' && (
           <motion.div
-            className="fixed inset-0 bg-black bg-opacity-60 flex justify-center items-center z-50 p-4"
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center z-50 p-4"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
