@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, X, Building2, Loader2 } from "lucide-react";
+import { Search, X, Building2, Loader2, ArrowLeft } from "lucide-react";
 import { EPS, fetchEPS } from "../../services/EPS/epsService";
 
 const EPSPage = () => {
@@ -11,6 +11,7 @@ const EPSPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const modalRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
 
   const fetchEpsData = useCallback(async () => {
     setLoading(true);
@@ -45,52 +46,63 @@ const EPSPage = () => {
   }, [selectedEPS]);
 
   return (
-    
-    <div className="min-h-screen bg-sky-900 p-6 flex flex-col items-center">
-      <motion.div initial={{ y: -20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="w-full max-w-2xl mb-6 relative">
-        <div className="relative">
-          <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500" />
-          <input
-            type="text"
-            placeholder="Buscar EPS..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full p-3 pl-12 rounded-lg bg-white shadow-xl border border-gray-300 text-gray-900 focus:ring-2 focus:ring-sky-500"
-          />
-          {search && (
-            <button onClick={() => setSearch("")} className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700">
-              <X />
-            </button>
-          )}
-        </div>
-      </motion.div>
 
-      {/* Mensaje de error */}
-      {error && <div className="text-red-500 mb-4">{error}</div>}
-      {loading ? (
-        <Loader2 className="animate-spin text-white" size={32} />
-      ) : (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-4xl">
-          {epsList.length > 0 ? (
-            epsList.map((eps) =>
-              eps.id_eps ? (
-                <motion.button
-                  key={eps.id_eps}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="p-5 bg-white shadow-xl rounded-lg flex flex-col items-center cursor-pointer transition-transform"
-                  onClick={() => setSelectedEPS(eps)}
-                >
-                  <Building2 size={40} className="text-indigo-900 mb-3" />
-                  <h3 className="text-lg font-semibold text-gray-800">{eps.nombre}</h3>
-                </motion.button>
-              ) : null
-            )
-          ) : (
-            <div className="text-gray-500">No hay EPS disponibles</div>
-          )}
+    <div className="min-h-screen bg-sky-900 flex flex-col">
+      <header className="bg-sky-800 shadow-lg p-4 flex items-center">
+        <button
+          onClick={() => navigate('/Menu')}
+          className="flex items-center text-white hover:text-gray-200 transition-colors px-4 py-2 rounded-lg hover:bg-sky-700"
+        >
+          <ArrowLeft size={24} className="mr-2" />
+          <span className="font-medium">Volver al Menú</span>
+        </button>
+      </header>
+      <div className="flex-1 p-6 flex flex-col items-center">
+        <motion.div initial={{ y: -20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="w-full max-w-2xl mb-6 relative">
+          <div className="relative">
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500" />
+            <input
+              type="text"
+              placeholder="Buscar EPS..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full p-3 pl-12 rounded-lg bg-white shadow-xl border border-gray-300 text-gray-900 focus:ring-2 focus:ring-sky-500"
+            />
+            {search && (
+              <button onClick={() => setSearch("")} className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700">
+                <X />
+              </button>
+            )}
+          </div>
         </motion.div>
-      )}
+
+        {/* Mensaje de error */}
+        {error && <div className="text-red-500 mb-4">{error}</div>}
+        {loading ? (
+          <Loader2 className="animate-spin text-white" size={32} />
+        ) : (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-4xl">
+            {epsList.length > 0 ? (
+              epsList.map((eps) =>
+                eps.id_eps ? (
+                  <motion.button
+                    key={eps.id_eps}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="p-5 bg-white shadow-xl rounded-lg flex flex-col items-center cursor-pointer transition-transform"
+                    onClick={() => setSelectedEPS(eps)}
+                  >
+                    <Building2 size={40} className="text-indigo-900 mb-3" />
+                    <h3 className="text-lg font-semibold text-gray-800">{eps.nombre}</h3>
+                  </motion.button>
+                ) : null
+              )
+            ) : (
+              <div className="text-gray-500">No hay EPS disponibles</div>
+            )}
+          </motion.div>
+        )}
+      </div>
 
       {/* Modal de tarifarios */}
       <AnimatePresence>

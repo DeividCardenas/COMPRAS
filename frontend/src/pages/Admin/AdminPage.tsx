@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import { 
-  fetchEmpresas, 
-  fetchEps, 
-  fetchLaboratorios, 
+import {
+  fetchEmpresas,
+  fetchEps,
+  fetchLaboratorios,
   fetchUsers,
   updateUser,
   updateEps,
@@ -17,10 +17,12 @@ import Sidebar from "../../components/Sidebar";
 import MobileSidebar from "../../components/MobileSidebar";
 import Header from "../../components/Header";
 import { useNavigate } from "react-router-dom";
+import { Menu } from "lucide-react";
 
 
 const AdminDashboard: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [data, setData] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
@@ -33,7 +35,11 @@ const AdminDashboard: React.FC = () => {
   const navigate = useNavigate();
 
   const handleMenuToggle = () => {
-    setIsMobileMenuOpen(!isMobileMenuOpen);
+    if (window.innerWidth >= 768) {
+      setIsSidebarOpen(!isSidebarOpen);
+    } else {
+      setIsMobileMenuOpen(!isMobileMenuOpen);
+    }
   };
 
   const fetchData = async (type: string) => {
@@ -294,7 +300,7 @@ const AdminDashboard: React.FC = () => {
 
       {/* Sidebar fijo a la izquierda */}
       <div className="hidden md:block">
-        <Sidebar />
+        {isSidebarOpen && <Sidebar />}
       </div>
       {/* Sidebar móvil */}
       <MobileSidebar
@@ -305,6 +311,15 @@ const AdminDashboard: React.FC = () => {
       {/* Contenido principal */}
       <div className="flex-1 flex flex-col min-h-screen">
         <Header onMenuClick={handleMenuToggle} />
+
+        {!isSidebarOpen && window.innerWidth >= 768 && (
+          <button
+            onClick={() => setIsSidebarOpen(true)}
+            className="fixed top-4 left-4 z-50 bg-gray-800 text-white p-2 rounded-md shadow-lg hover:bg-gray-700 transition"
+          >
+            <Menu size={24} />
+          </button>
+        )}
 
         <main className="flex-1 w-full max-w-6xl mx-auto flex flex-col items-center justify-center p-6">
           <h1 className="text-4xl font-bold text-white mb-8 text-center drop-shadow-lg">
