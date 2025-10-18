@@ -1,6 +1,6 @@
 # Proyecto Pharma Elite Care (PEC)
 
-Este repositorio contiene el backend (Node + Express + Prisma) y el frontend (React + Vite + TypeScript) del proyecto COMPRAS.
+Este repositorio contiene el backend (Node + Express + Prisma) y el frontend (React + Vite + TypeScript) del proyecto PEC.
 
 Este README explica cómo configurar el entorno, gestionar la base de datos, correr migraciones, poblar datos de ejemplo y ejecutar la aplicación localmente.
 
@@ -57,7 +57,7 @@ AUTH_JW_SECRET_KEY="1234567890abcdef1234567890abcdef"
 
 1) Backend
 ```cmd
-cd \Trabajos\COMPRAS\backend
+cd backend
 npm install
 ```
 
@@ -73,7 +73,7 @@ npm install
 
 ### Generar Prisma Client
 ```cmd
-cd \Trabajos\COMPRAS\backend
+cd backend
 npx prisma generate
 ```
 ó
@@ -82,9 +82,9 @@ npm run build
 ```
 
 ### Crear y aplicar migraciones (modo dev)
-# Proyecto COMPRAS
+# Proyecto PEC
 
-Este repositorio contiene el backend (Node + Express + Prisma) y el frontend (React + Vite + TypeScript) del proyecto COMPRAS.
+Este repositorio contiene el backend (Node + Express + Prisma) y el frontend (React + Vite + TypeScript) del proyecto PEC.
 
 Este README explica cómo configurar el entorno, gestionar la base de datos, correr migraciones, poblar datos de ejemplo y ejecutar la aplicación localmente.
 
@@ -141,7 +141,7 @@ AUTH_JW_SECRET_KEY="1234567890abcdef1234567890abcdef"
 
 1) Backend
 ```cmd
-cd \Trabajos\COMPRAS\backend
+cd backend
 npm install
 ```
 
@@ -157,7 +157,7 @@ npm install
 
 ### Generar Prisma Client
 ```cmd
-cd \Trabajos\COMPRAS\backend
+cd backend
 npx prisma generate
 ```
 ó
@@ -167,7 +167,7 @@ npm run build
 
 ### Crear y aplicar migraciones (modo dev)
 ```cmd
-cd \Trabajos\COMPRAS\backend
+cd backend
 npx prisma migrate dev --name <nombre_migracion>
 ```
 
@@ -175,7 +175,7 @@ Si Prisma detecta "drift" (diferencias entre migraciones y esquema real) verás 
 
 ### Backup de la BD (mysqldump)
 ```cmd
-cd \Trabajos\COMPRAS\backend
+cd backend
 mkdir backups
 mysqldump -u root -p PEC > backups\pec_backup_YYYYMMDD.sql
 ```
@@ -184,14 +184,14 @@ Si `mysqldump` no está instalado en Windows, busca `mysqldump.exe` en la carpet
 
 ### Usar Docker para crear backup (si Docker Desktop está instalado)
 ```cmd
-cd \Trabajos\COMPRAS\backend
+cd backend
 mkdir backups
 docker run --rm -v "%cd%\\backups:/backups" mysql:8.0 sh -c "exec mysqldump -h host.docker.internal -P 3306 -u root -p'12345' PEC > /backups/pec_backup.sql"
 ```
 
 ### Resetear la DB (destructivo)
 ```cmd
-cd \Trabajos\COMPRAS\backend
+cd backend
 npx prisma migrate reset --force
 ```
 
@@ -214,7 +214,7 @@ Scripts disponibles en `backend/scripts`:
 
 Ejecutar:
 ```cmd
-cd \Trabajos\COMPRAS\backend
+cd backend
 npm run seed:full
 npm run seed:generated
 ```
@@ -238,7 +238,7 @@ node scripts\update_admin_password.js admin@admin.com admin123
 
 1) Backend (dev)
 ```cmd
-cd \Trabajos\COMPRAS\backend
+cd backend
 npm run dev
 ```
 
@@ -286,14 +286,3 @@ Estas credenciales son solo para desarrollo local.
 
 4. 400 Bad Request en login
 - Verifica la contraseña usada; puedes actualizar la contraseña de desarrollo con `node scripts/update_admin_password.js admin@admin.com <password>`.
-
----
-
-## Recomendaciones / próximos pasos
-- Convertir la creación de la tabla `proveedores` a una migración formal (añadir SQL a `prisma/migrations/...`).
-- Añadir tests (Jest + Supertest) para endpoints críticos (login, proveedores).
-- Documentar credenciales de dev en `README_DEV.md` y añadir instrucciones de seguridad.
-
----
-
-Si quieres, guardo este README en la raíz del repositorio (ya lo añadí). Puedo además crear un `README_DEV.md` con las credenciales y comandos rápidos, o generar la migración SQL formal para `Proveedor` y añadirla al historial. Dime si quieres que haga alguna de esas acciones ahora.
