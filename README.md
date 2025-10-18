@@ -1,4 +1,4 @@
-# Proyecto COMPRAS
+# Proyecto Pharma Elite Care (PEC)
 
 Este repositorio contiene el backend (Node + Express + Prisma) y el frontend (React + Vite + TypeScript) del proyecto COMPRAS.
 
