@@ -1,0 +1,245 @@
+[
+  {
+    "id_tarifario": 1,
+    "id_producto": 8,
+    "precio": 15000,
+    "precio_unidad": 1500,
+    "precio_empaque": 15000,
+    "createdAt": "2025-10-18T01:43:38.065Z",
+    "updatedAt": "2025-10-18T01:43:38.065Z"
+  },
+  {
+    "id_tarifario": 2,
+    "id_producto": 8,
+    "precio": 10500,
+    "precio_unidad": 1050,
+    "precio_empaque": 10500,
+    "createdAt": "2025-10-18T02:34:04.137Z",
+    "updatedAt": "2025-10-18T02:34:04.137Z"
+  },
+  {
+    "id_tarifario": 2,
+    "id_producto": 9,
+    "precio": 6300,
+    "precio_unidad": 735,
+    "precio_empaque": 6300,
+    "createdAt": "2025-10-18T02:34:04.160Z",
+    "updatedAt": "2025-10-18T02:34:04.160Z"
+  },
+  {
+    "id_tarifario": 2,
+    "id_producto": 10,
+    "precio": 14700,
+    "precio_unidad": 1260,
+    "precio_empaque": 14700,
+    "createdAt": "2025-10-18T02:34:04.182Z",
+    "updatedAt": "2025-10-18T02:34:04.182Z"
+  },
+  {
+    "id_tarifario": 2,
+    "id_producto": 11,
+    "precio": 9450,
+    "precio_unidad": 945,
+    "precio_empaque": 9450,
+    "createdAt": "2025-10-18T02:34:04.200Z",
+    "updatedAt": "2025-10-18T02:34:04.200Z"
+  },
+  {
+    "id_tarifario": 2,
+    "id_producto": 12,
+    "precio": 5775,
+    "precio_unidad": 630,
+    "precio_empaque": 5775,
+    "createdAt": "2025-10-18T02:34:04.223Z",
+    "updatedAt": "2025-10-18T02:34:04.223Z"
+  },
+  {
+    "id_tarifario": 2,
+    "id_producto": 13,
+    "precio": 21000,
+    "precio_unidad": 1575,
+    "precio_empaque": 21000,
+    "createdAt": "2025-10-18T02:34:04.245Z",
+    "updatedAt": "2025-10-18T02:34:04.245Z"
+  },
+  {
+    "id_tarifario": 3,
+    "id_producto": 8,
+    "precio": 9500,
+    "precio_unidad": 950,
+    "precio_empaque": 9500,
+    "createdAt": "2025-10-18T02:34:04.144Z",
+    "updatedAt": "2025-10-18T02:34:04.144Z"
+  },
+  {
+    "id_tarifario": 3,
+    "id_producto": 9,
+    "precio": 5700,
+    "precio_unidad": 665,
+    "precio_empaque": 5700,
+    "createdAt": "2025-10-18T02:34:04.166Z",
+    "updatedAt": "2025-10-18T02:34:04.166Z"
+  },
+  {
+    "id_tarifario": 3,
+    "id_producto": 10,
+    "precio": 13300,
+    "precio_unidad": 1140,
+    "precio_empaque": 13300,
+    "createdAt": "2025-10-18T02:34:04.186Z",
+    "updatedAt": "2025-10-18T02:34:04.186Z"
+  },
+  {
+    "id_tarifario": 3,
+    "id_producto": 11,
+    "precio": 8550,
+    "precio_unidad": 855,
+    "precio_empaque": 8550,
+    "createdAt": "2025-10-18T02:34:04.207Z",
+    "updatedAt": "2025-10-18T02:34:04.207Z"
+  },
+  {
+    "id_tarifario": 3,
+    "id_producto": 12,
+    "precio": 5225,
+    "precio_unidad": 570,
+    "precio_empaque": 5225,
+    "createdAt": "2025-10-18T02:34:04.228Z",
+    "updatedAt": "2025-10-18T02:34:04.228Z"
+  },
+  {
+    "id_tarifario": 3,
+    "id_producto": 13,
+    "precio": 19000,
+    "precio_unidad": 1425,
+    "precio_empaque": 19000,
+    "createdAt": "2025-10-18T02:34:04.250Z",
+    "updatedAt": "2025-10-18T02:34:04.250Z"
+  },
+  {
+    "id_tarifario": 4,
+    "id_producto": 8,
+    "precio": 9000,
+    "precio_unidad": 900,
+    "precio_empaque": 9000,
+    "createdAt": "2025-10-18T02:34:04.152Z",
+    "updatedAt": "2025-10-18T02:34:04.152Z"
+  },
+  {
+    "id_tarifario": 4,
+    "id_producto": 9,
+    "precio": 5400,
+    "precio_unidad": 630,
+    "precio_empaque": 5400,
+    "createdAt": "2025-10-18T02:34:04.171Z",
+    "updatedAt": "2025-10-18T02:34:04.171Z"
+  },
+  {
+    "id_tarifario": 4,
+    "id_producto": 10,
+    "precio": 12600,
+    "precio_unidad": 1080,
+    "precio_empaque": 12600,
+    "createdAt": "2025-10-18T02:34:04.191Z",
+    "updatedAt": "2025-10-18T02:34:04.191Z"
+  },
+  {
+    "id_tarifario": 4,
+    "id_producto": 11,
+    "precio": 8100,
+    "precio_unidad": 810,
+    "precio_empaque": 8100,
+    "createdAt": "2025-10-18T02:34:04.212Z",
+    "updatedAt": "2025-10-18T02:34:04.212Z"
+  },
+  {
+    "id_tarifario": 4,
+    "id_producto": 12,
+    "precio": 4950,
+    "precio_unidad": 540,
+    "precio_empaque": 4950,
+    "createdAt": "2025-10-18T02:34:04.233Z",
+    "updatedAt": "2025-10-18T02:34:04.233Z"
+  },
+  {
+    "id_tarifario": 4,
+    "id_producto": 13,
+    "precio": 18000,
+    "precio_unidad": 1350,
+    "precio_empaque": 18000,
+    "createdAt": "2025-10-18T02:34:04.258Z",
+    "updatedAt": "2025-10-18T02:34:04.258Z"
+  },
+  {
+    "id_tarifario": 5,
+    "id_producto": 8,
+    "precio": 11000,
+    "precio_unidad": 1100,
+    "precio_empaque": 11000,
+    "createdAt": "2025-10-18T02:34:04.155Z",
+    "updatedAt": "2025-10-18T02:34:04.155Z"
+  },
+  {
+    "id_tarifario": 5,
+    "id_producto": 9,
+    "precio": 6600,
+    "precio_unidad": 770,
+    "precio_empaque": 6600,
+    "createdAt": "2025-10-18T02:34:04.177Z",
+    "updatedAt": "2025-10-18T02:34:04.177Z"
+  },
+  {
+    "id_tarifario": 5,
+    "id_producto": 10,
+    "precio": 15400,
+    "precio_unidad": 1320,
+    "precio_empaque": 15400,
+    "createdAt": "2025-10-18T02:34:04.196Z",
+    "updatedAt": "2025-10-18T02:34:04.196Z"
+  },
+  {
+    "id_tarifario": 5,
+    "id_producto": 11,
+    "precio": 9900,
+    "precio_unidad": 990,
+    "precio_empaque": 9900,
+    "createdAt": "2025-10-18T02:34:04.217Z",
+    "updatedAt": "2025-10-18T02:34:04.217Z"
+  },
+  {
+    "id_tarifario": 5,
+    "id_producto": 12,
+    "precio": 6050,
+    "precio_unidad": 660,
+    "precio_empaque": 6050,
+    "createdAt": "2025-10-18T02:34:04.239Z",
+    "updatedAt": "2025-10-18T02:34:04.239Z"
+  },
+  {
+    "id_tarifario": 5,
+    "id_producto": 13,
+    "precio": 22000,
+    "precio_unidad": 1650,
+    "precio_empaque": 22000,
+    "createdAt": "2025-10-18T02:34:04.263Z",
+    "updatedAt": "2025-10-18T02:34:04.263Z"
+  },
+  {
+    "id_tarifario": 6,
+    "id_producto": 1,
+    "precio": 15250,
+    "precio_unidad": 1017,
+    "precio_empaque": 15250,
+    "createdAt": "2025-10-18T03:18:44.233Z",
+    "updatedAt": "2025-10-18T03:18:44.233Z"
+  },
+  {
+    "id_tarifario": 7,
+    "id_producto": 1,
+    "precio": 17063,
+    "precio_unidad": 1138,
+    "precio_empaque": 17063,
+    "createdAt": "2025-10-18T03:18:44.242Z",
+    "updatedAt": "2025-10-18T03:18:44.242Z"
+  }
+]

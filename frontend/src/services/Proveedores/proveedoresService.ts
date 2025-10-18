@@ -50,3 +50,15 @@ export const fetchProveedores = async (
     throw new Error("No se pudo obtener los proveedores");
   }
 };
+
+// Crear un proveedor
+export const createProveedor = async (payload: Partial<Proveedor>) => {
+  setBaseURL("proveedores");
+  try {
+    const response = await axiosInstance.post("/", payload);
+    return response.data;
+  } catch (error) {
+    console.error("Error al crear proveedor:", error);
+    throw error;
+  }
+};

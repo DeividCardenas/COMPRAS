@@ -49,11 +49,17 @@ class Server {
     this.app.use(this.path + "empresa", require("../routes/empresas/Empresa.routes"));
     this.app.use(this.path + "laboratorio", require("../routes/empresas/Laboratorio.routes"));
     this.app.use(this.path + "empresa-laboratorio", require("../routes/empresas/EmpresaOnLaboratorio.routes"));
+  // Rutas de proveedores
+  this.app.use(this.path + "proveedores", require("../routes/proveedores/Proveedor.routes"));
 
     // Rutas para EPS y tarifarios
     this.app.use(this.path + "eps", require("../routes/eps/EPS.routes"));
     this.app.use(this.path + "tarifario", require("../routes/eps/Tarifario.routes"));
     this.app.use(this.path + "permiso-tarifario", require("../routes/roles/PermisoOnTarifario.routes"));
+    // Ruta para comparador
+    this.app.use(this.path + "compare", require("../routes/compare/Compare.routes"));
+    // Ruta para debug (diagnóstico)
+    this.app.use(this.path + "debug", require("../routes/debug/Debug.routes"));
   }
 
   /**
@@ -70,7 +76,7 @@ class Server {
    * Inicia el servidor y escucha en el puerto configurado.
    */
   listen() {
-    this.app.listen(this.port, () => {
+    this.app.listen(this.port, '0.0.0.0', () => {
       console.log(`Servidor funcionando en el puerto: ${this.port}`);
     });
   }

@@ -86,6 +86,16 @@ const Menu: React.FC = () => {
           <h3 className="text-3xl font-semibold text-indigo-900 mt-5">Tarifario</h3>
           <p className="text-gray-600 mt-2">Gestiona el tarifario aquí</p>
         </button>
+
+        <button
+          onClick={() => handleNavigation("/comparar")}
+          className="bg-white rounded-3xl shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all p-6 flex flex-col items-center justify-center text-center focus:outline-none"
+          aria-label="Ir a la sección de Comparar"
+        >
+          <FileText size={60} className="text-indigo-900" />
+          <h3 className="text-3xl font-semibold text-indigo-900 mt-5">Comparar</h3>
+          <p className="text-gray-600 mt-2">Comparar precios entre compañías</p>
+        </button>
       </div>
 
       <button
