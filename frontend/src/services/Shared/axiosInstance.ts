@@ -52,6 +52,9 @@ export const setBaseURL = (service: string) => {
     case 'permiso-tarifario':
       axiosInstance.defaults.baseURL = `${baseURL}/permiso-tarifario`;
       break;
+    case 'proveedores':
+      axiosInstance.defaults.baseURL = `${baseURL}/proveedores`;
+      break;
     case 'tarifario-producto':
       axiosInstance.defaults.baseURL = `${baseURL}/tarifario-producto`;
       break;

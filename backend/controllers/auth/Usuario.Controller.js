@@ -145,6 +145,7 @@ const Login = async (req, res) => {
     let { email, password } = req.body;
 
     try {
+        console.log('Login request body:', req.body);
         const usuario = await prisma.usuario.findUnique({
             where: { email },
             include: {

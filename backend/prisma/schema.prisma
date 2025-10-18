@@ -166,3 +166,17 @@ model Producto {
   createdAt          DateTime @default(now()) @map("fecha_creacion")
   updatedAt          DateTime @updatedAt @map("fecha_actualizacion")
 }
+
+/// Proveedores (nuevo modelo para persistir proveedores creados desde la UI)
+model Proveedor {
+  id_proveedor Int      @id @default(autoincrement()) @map("id_proveedor")
+  laboratorio  String?
+  tipo         String?
+  titular      String?
+  direccion    String?
+  telefono     String?
+  email        String?
+  creado_en    DateTime @default(now()) @map("creado_en")
+
+  @@map("proveedores")
+}

@@ -16,6 +16,7 @@ import {
 import Sidebar from "../../components/Sidebar";
 import MobileSidebar from "../../components/MobileSidebar";
 import Header from "../../components/Header";
+import { useAuth } from '../../context/useAuth';
 import { useNavigate } from "react-router-dom";
 import { Menu } from "lucide-react";
 
@@ -24,6 +25,10 @@ const AdminDashboard: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [data, setData] = useState<any>(null);
+  const [perPage, setPerPage] = useState<number>(10);
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [page, setPage] = useState<number>(1);
+  const [totalPages, setTotalPages] = useState<number>(1);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [selectedItem, setSelectedItem] = useState<any>(null);
@@ -33,6 +38,7 @@ const AdminDashboard: React.FC = () => {
   const [editForm, setEditForm] = useState<any>({});
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const handleMenuToggle = () => {
     if (window.innerWidth >= 768) {
@@ -42,6 +48,19 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
+  // Guard: only Administrador can access this page
+  React.useEffect(() => {
+    if (!user || !user.id) {
+      // not logged in -> redirect to login
+      navigate('/');
+      return;
+    }
+    if (user.rol !== 'Administrador') {
+      // non-admin -> redirect to home/menu
+      navigate('/Menu');
+    }
+  }, [user]);
+
   const fetchData = async (type: string) => {
     try {
       setLoading(true);
@@ -49,7 +68,7 @@ const AdminDashboard: React.FC = () => {
       setData(null);
       setCurrentSection(type);
       let response;
-      const defaultFilters = { page: 1, limit: 10 };
+      const defaultFilters = { page, limit: perPage, nombre: searchQuery };
 
       switch (type) {
         case "users":
@@ -68,12 +87,52 @@ const AdminDashboard: React.FC = () => {
           throw new Error("Tipo de datos no válido");
       }
       setData(response);
+      // update totalPages and current page if API returns paginaActual/totalPaginas
+      const respAny: any = response;
+
+      // If service returned normalized { data, page, totalPages }
+      if (respAny && Array.isArray(respAny.data)) {
+        setTotalPages(Number(respAny.totalPages ?? 1));
+        const current = respAny.page ?? page;
+        if (Number(current) !== page) setPage(Number(current));
+      } else {
+        const total = respAny?.totalPaginas ?? respAny?.totalPages ?? 1;
+        const current = respAny?.paginaActual ?? respAny?.currentPage ?? respAny?.page ?? page;
+        setTotalPages(Number(total));
+        if (Number(current) !== page) setPage(Number(current));
+      }
     } catch (err) {
       console.error(`Error al obtener ${type}:`, err);
-      setError(`No se pudo cargar la información de ${type}. Intente nuevamente más tarde.`);
+      // Attempt to read server message if provided
+      const serverMsg = (err as any)?.response?.data?.msg || (err as any)?.response?.data?.mensaje || (err as any)?.message;
+      setError(serverMsg ? `No se pudo cargar la información de ${type}: ${serverMsg}` : `No se pudo cargar la información de ${type}. Intente nuevamente más tarde.`);
     } finally {
       setLoading(false);
     }
+  };
+
+  // Helper to normalize data for rendering in this component
+  const getNormalizedData = (raw: any, section: string) => {
+    if (!raw) return { items: [], page: page, totalPages };
+
+    // If service already returned normalized shape
+    if (Array.isArray(raw.data)) return { items: raw.data, page: raw.page ?? page, totalPages: raw.totalPages ?? totalPages };
+
+    // Users
+    if (Array.isArray(raw.usuarios)) return { items: raw.usuarios, page: raw.paginaActual ?? raw.page ?? page, totalPages: raw.totalPaginas ?? raw.totalPages ?? totalPages };
+
+    // EPS
+    if (Array.isArray(raw.eps)) return { items: raw.eps, page: raw.paginaActual ?? raw.page ?? page, totalPages: raw.totalPaginas ?? raw.totalPages ?? totalPages };
+
+    // Empresas structure: raw.data (array of empresas) OR raw.empresas
+    if (Array.isArray(raw.data) && section === 'empresas') return { items: raw.data, page: raw.page ?? raw.paginaActual ?? page, totalPages: raw.totalPages ?? raw.totalPaginas ?? totalPages };
+    if (Array.isArray(raw.empresas)) return { items: raw.empresas, page: raw.paginaActual ?? raw.page ?? page, totalPages: raw.totalPaginas ?? raw.totalPages ?? totalPages };
+
+    // Laboratorios: previously expected raw.data
+    if (Array.isArray(raw.data) && section === 'laboratorios') return { items: raw.data, page: raw.page ?? raw.paginaActual ?? page, totalPages: raw.totalPages ?? raw.totalPaginas ?? totalPages };
+
+    // Fallback
+    return { items: [], page, totalPages };
   };
 
   const handleEdit = (item: any) => {
@@ -128,19 +187,18 @@ const AdminDashboard: React.FC = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      let response;
       switch (currentSection) {
         case "users":
-          response = await updateUser(selectedItem.id_usuario, editForm);
+          await updateUser(selectedItem.id_usuario, editForm);
           break;
         case "eps":
-          response = await updateEps(selectedItem.id_eps, editForm);
+          await updateEps(selectedItem.id_eps, editForm);
           break;
         case "laboratorios":
-          response = await updateLaboratorio(selectedItem.id_laboratorio, editForm);
+          await updateLaboratorio(selectedItem.id_laboratorio, editForm);
           break;
         case "empresas":
-          response = await updateEmpresa(selectedItem.id_empresa, editForm);
+          await updateEmpresa(selectedItem.id_empresa, editForm);
           break;
         default:
           throw new Error("Sección no válida para actualización");
@@ -161,19 +219,18 @@ const AdminDashboard: React.FC = () => {
   const confirmDelete = async () => {
     setLoading(true);
     try {
-      let response;
       switch (currentSection) {
         case "users":
-          response = await deleteUser(selectedItem.id_usuario);
+          await deleteUser(selectedItem.id_usuario);
           break;
         case "eps":
-          response = await deleteEps(selectedItem.id_eps);
+          await deleteEps(selectedItem.id_eps);
           break;
         case "laboratorios":
-          response = await deleteLaboratorio(selectedItem.id_laboratorio);
+          await deleteLaboratorio(selectedItem.id_laboratorio);
           break;
         case "empresas":
-          response = await deleteEmpresa(selectedItem.id_empresa);
+          await deleteEmpresa(selectedItem.id_empresa);
           break;
         default:
           throw new Error("Sección no válida para eliminación");
@@ -328,12 +385,14 @@ const AdminDashboard: React.FC = () => {
 
           {/* Botón de redirección a Crear */}
           <div className="w-full flex justify-end mb-4">
-            <button
-              onClick={() => navigate("/Admin/Crear")}
-              className="bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-2 rounded-2xl shadow transition"
-            >
-              Crear
-            </button>
+            {user?.rol === 'Administrador' && (
+              <button
+                onClick={() => navigate("/Admin/Crear")}
+                className="bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-2 rounded-2xl shadow transition"
+              >
+                Crear
+              </button>
+            )}
           </div>
 
           {successMessage && (
@@ -379,19 +438,41 @@ const AdminDashboard: React.FC = () => {
 
           {error && (
             <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4 rounded w-full max-w-lg mx-auto">
-              <p>{error}</p>
+              <div className="flex items-start justify-between gap-4">
+                <p className="flex-1">{error}</p>
+                <div className="flex-shrink-0 ml-4">
+                  <button onClick={() => fetchData(currentSection || 'laboratorios')} className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600">Reintentar</button>
+                </div>
+              </div>
             </div>
           )}
 
           <div className="w-full max-w-4xl">
             <div className="bg-white p-6 rounded-3xl shadow-lg">
+              {/* Search & per-page controls */}
+              <div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div className="flex items-center gap-2 w-full sm:w-1/2">
+                  <input type="text" placeholder="Buscar por nombre..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="w-full border p-2 rounded" />
+                  <button onClick={() => fetchData(currentSection || 'users')} className="bg-indigo-600 text-white px-3 py-2 rounded">Buscar</button>
+                </div>
+                <div className="flex items-center gap-2">
+                  <label className="text-sm text-gray-600">Por página:</label>
+                  <select value={perPage} onChange={(e) => { setPerPage(Number(e.target.value)); fetchData(currentSection || 'users'); }} className="border p-2 rounded">
+                    <option value={5}>5</option>
+                    <option value={10}>10</option>
+                    <option value={25}>25</option>
+                    <option value={50}>50</option>
+                  </select>
+                </div>
+              </div>
               {loading ? (
                 <div className="text-center py-4">
                   <p className="text-gray-600">Cargando datos...</p>
                 </div>
               ) : data ? (
                 (() => {
-                  if (Array.isArray(data.usuarios)) {
+                  const normalized = getNormalizedData(data, currentSection);
+                  if (Array.isArray(normalized.items) && currentSection === 'users') {
                     // Renderizar usuarios
                     return (
                       <div>
@@ -408,7 +489,7 @@ const AdminDashboard: React.FC = () => {
                               </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
-                              {data.usuarios.map((usuario: any) => (
+                              {normalized.items.map((usuario: any) => (
                                 <tr key={usuario.id_usuario}>
                                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{usuario.id_usuario}</td>
                                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{usuario.username}</td>
@@ -436,7 +517,7 @@ const AdminDashboard: React.FC = () => {
                       </div>
                     );
                   }
-                  else if (Array.isArray(data.eps)) {
+                  else if (Array.isArray(data.eps) || (normalized.items && currentSection === 'eps')) {
                     // Renderizar EPS
                     return (
                       <div>
@@ -451,7 +532,7 @@ const AdminDashboard: React.FC = () => {
                               </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
-                              {data.eps.map((eps: any) => (
+                              {(normalized.items && currentSection === 'eps' ? normalized.items : data.eps).map((eps: any) => (
                                 <tr key={eps.id_eps}>
                                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{eps.id_eps}</td>
                                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{eps.nombre}</td>
@@ -477,7 +558,7 @@ const AdminDashboard: React.FC = () => {
                       </div>
                     );
                   }
-                  else if (Array.isArray(data.data) && currentSection === "laboratorios") {
+                  else if (currentSection === "laboratorios") {
                     // Renderizar laboratorios
                     return (
                       <div>
@@ -492,7 +573,7 @@ const AdminDashboard: React.FC = () => {
                               </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
-                              {data.data.map((laboratorio: any) => (
+                              { (normalized.items && currentSection === 'laboratorios' ? normalized.items : (data.data || [])).map((laboratorio: any) => (
                                 <tr key={laboratorio.id_laboratorio}>
                                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{laboratorio.id_laboratorio}</td>
                                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{laboratorio.nombre}</td>
@@ -518,12 +599,12 @@ const AdminDashboard: React.FC = () => {
                       </div>
                     );
                   }
-                  else if (Array.isArray(data.data) && currentSection === "empresas") {
+                  else if (currentSection === "empresas") {
                     // Renderizar empresas
                     return (
                       <div>
                         <h2 className="text-lg font-semibold mb-3">Empresas</h2>
-                        {data.data.map((empresa: any) => (
+                        {(normalized.items && currentSection === 'empresas' ? normalized.items : (data.data || [])).map((empresa: any) => (
                           <div key={empresa.id_empresa} className="mb-6 border rounded-lg shadow-sm">
                             <div className="bg-gray-50 p-4 border-b flex justify-between items-center">
                               <div>
@@ -601,6 +682,30 @@ const AdminDashboard: React.FC = () => {
               )}
             </div>
           </div>
+          {/* Pagination controls */}
+          {data && (
+            <div className="w-full max-w-4xl mt-4 flex items-center justify-center gap-4">
+              <button onClick={() => { if (page > 1) { setPage(page - 1); fetchData(currentSection); } }} className="px-4 py-2 bg-gray-200 rounded" disabled={page <= 1}>Anterior</button>
+              <div className="text-sm text-gray-700">Página {page} de {totalPages}</div>
+              <button onClick={() => { if (page < totalPages) { setPage(page + 1); fetchData(currentSection); } }} className="px-4 py-2 bg-gray-200 rounded" disabled={page >= totalPages}>Siguiente</button>
+              <div className="flex items-center gap-2">
+                <label className="text-sm text-gray-600">Ir a:</label>
+                <input type="number" min={1} max={totalPages} value={page} onChange={(e) => {
+                  const v = Number(e.target.value || 1);
+                  if (v >= 1 && v <= totalPages) {
+                    setPage(v);
+                    fetchData(currentSection);
+                  } else if (v < 1) {
+                    setPage(1);
+                    fetchData(currentSection);
+                  } else if (v > totalPages) {
+                    setPage(totalPages);
+                    fetchData(currentSection);
+                  }
+                }} className="w-20 px-2 py-1 border rounded" />
+              </div>
+            </div>
+          )}
         </main>
 
         {/* Modal para Editar */}
