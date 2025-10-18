@@ -1,0 +1,58 @@
+[
+  {
+    "id_tarifario": 1,
+    "nombre": "Tarifario Sanitas",
+    "id_eps": 1,
+    "id_empresa": null,
+    "createdAt": "2025-05-01T21:33:06.417Z",
+    "updatedAt": "2025-05-01T21:33:06.417Z"
+  },
+  {
+    "id_tarifario": 2,
+    "nombre": "Tarifario Alpha",
+    "id_eps": null,
+    "id_empresa": 8,
+    "createdAt": "2025-10-18T02:34:04.068Z",
+    "updatedAt": "2025-10-18T02:34:04.068Z"
+  },
+  {
+    "id_tarifario": 3,
+    "nombre": "Tarifario Beta",
+    "id_eps": null,
+    "id_empresa": 9,
+    "createdAt": "2025-10-18T02:34:04.073Z",
+    "updatedAt": "2025-10-18T02:34:04.073Z"
+  },
+  {
+    "id_tarifario": 4,
+    "nombre": "Tarifario EPS Salud",
+    "id_eps": 8,
+    "id_empresa": null,
+    "createdAt": "2025-10-18T02:34:04.081Z",
+    "updatedAt": "2025-10-18T02:34:04.081Z"
+  },
+  {
+    "id_tarifario": 5,
+    "nombre": "Tarifario EPS Bienestar",
+    "id_eps": 9,
+    "id_empresa": null,
+    "createdAt": "2025-10-18T02:34:04.088Z",
+    "updatedAt": "2025-10-18T02:34:04.088Z"
+  },
+  {
+    "id_tarifario": 6,
+    "nombre": "Tarifario EMSSANAR",
+    "id_eps": null,
+    "id_empresa": 1,
+    "createdAt": "2025-10-18T02:57:47.240Z",
+    "updatedAt": "2025-10-18T02:57:47.240Z"
+  },
+  {
+    "id_tarifario": 7,
+    "nombre": "Tarifario Sursalud",
+    "id_eps": null,
+    "id_empresa": 2,
+    "createdAt": "2025-10-18T02:57:47.250Z",
+    "updatedAt": "2025-10-18T02:57:47.250Z"
+  }
+]

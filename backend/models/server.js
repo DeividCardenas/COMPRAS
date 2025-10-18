@@ -54,6 +54,10 @@ class Server {
     this.app.use(this.path + "eps", require("../routes/eps/EPS.routes"));
     this.app.use(this.path + "tarifario", require("../routes/eps/Tarifario.routes"));
     this.app.use(this.path + "permiso-tarifario", require("../routes/roles/PermisoOnTarifario.routes"));
+    // Ruta para comparador
+    this.app.use(this.path + "compare", require("../routes/compare/Compare.routes"));
+    // Ruta para debug (diagnóstico)
+    this.app.use(this.path + "debug", require("../routes/debug/Debug.routes"));
   }
 
   /**

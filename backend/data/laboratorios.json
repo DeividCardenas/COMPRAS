@@ -1,0 +1,50 @@
+[
+  {
+    "id_laboratorio": 1,
+    "nombre": "Roche",
+    "createdAt": "2025-05-01T20:24:49.124Z",
+    "updatedAt": "2025-05-17T15:23:15.973Z"
+  },
+  {
+    "id_laboratorio": 2,
+    "nombre": "Clinizad",
+    "createdAt": "2025-05-01T20:37:20.492Z",
+    "updatedAt": "2025-05-01T20:37:20.492Z"
+  },
+  {
+    "id_laboratorio": 3,
+    "nombre": "Synlab",
+    "createdAt": "2025-05-01T20:37:28.772Z",
+    "updatedAt": "2025-05-01T20:37:28.772Z"
+  },
+  {
+    "id_laboratorio": 4,
+    "nombre": "Glicol",
+    "createdAt": "2025-05-01T20:37:37.699Z",
+    "updatedAt": "2025-05-01T20:37:37.699Z"
+  },
+  {
+    "id_laboratorio": 5,
+    "nombre": "Sur salud",
+    "createdAt": "2025-05-01T20:37:55.469Z",
+    "updatedAt": "2025-05-17T15:23:52.651Z"
+  },
+  {
+    "id_laboratorio": 6,
+    "nombre": "clinica pabon",
+    "createdAt": "2025-05-17T23:44:56.554Z",
+    "updatedAt": "2025-05-17T23:44:56.554Z"
+  },
+  {
+    "id_laboratorio": 7,
+    "nombre": "Laboratorio Seed A",
+    "createdAt": "2025-10-18T02:34:03.979Z",
+    "updatedAt": "2025-10-18T02:34:03.979Z"
+  },
+  {
+    "id_laboratorio": 8,
+    "nombre": "Laboratorio Seed B",
+    "createdAt": "2025-10-18T02:34:04.018Z",
+    "updatedAt": "2025-10-18T02:34:04.018Z"
+  }
+]

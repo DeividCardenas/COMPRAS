@@ -17,6 +17,7 @@ import TarifariosPage from "./pages/Tarifario/Tarifario";
 import TarifariosList from "./pages/Tarifario/TarifariosList";
 import AdminPage from "./pages/Admin/AdminPage";
 import CrearPage from "./pages/Admin/CrearPage";
+import Compare from "./pages/Compare/Compare";
 
 const App: React.FC = () => {
   return (
@@ -37,6 +38,7 @@ const App: React.FC = () => {
                 <Route path="/EPS" element={<EPSPage />} />
                 <Route path="/tarifario" element={<TarifariosList />} />
                 <Route path="/tarifario/:id_tarifario" element={<TarifariosPage />} />
+                <Route path="/comparar" element={<Compare />} />
                 <Route path="/Empresa/:id_empresa" element={<EmpresaDetalles />} />
                 <Route path="/Admin" element={<AdminPage />} />
                 <Route path="/Admin/Crear" element={<CrearPage />} />

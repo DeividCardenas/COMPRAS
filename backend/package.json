@@ -5,8 +5,20 @@
   "main": "app.js",
   "scripts": {
     "test": "jest",
-    "build": "prisma generate",  
-    "start": "node app.js"
+    "build": "prisma generate",
+    "dev": "nodemon --watch . app.js",
+    "start": "node app.js",
+    "seed": "node scripts/seed.js",
+    "seed:full": "node scripts/seed_full.js",
+    "check:product": "node scripts/check_product_compare.js",
+    "assign:product": "node scripts/assign_product_tarifarios.js",
+    "create:tarifarios": "node scripts/create_tarifarios_for_companies.js",
+    "dump:data": "node ./scripts/dump_data.js",
+    "import:dump": "node ./scripts/import_from_dump.js",
+    "seed:generated": "node ./scripts/seed_generated.js",
+    "validate:dump": "node ./scripts/validate_dump.js",
+    "assign:all": "node ./scripts/assign_all_products_tarifarios.js",
+    "undo:recent-assigns": "node ./scripts/undo_recent_assignments.js"
   },
   "author": "Deivid Cardenas",
   "license": "ISC",

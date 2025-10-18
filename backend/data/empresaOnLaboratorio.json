@@ -1,0 +1,212 @@
+[
+  {
+    "id_empresa": 1,
+    "id_laboratorio": 1,
+    "createdAt": "2025-05-01T20:38:56.526Z",
+    "updatedAt": "2025-05-01T20:38:56.526Z"
+  },
+  {
+    "id_empresa": 1,
+    "id_laboratorio": 2,
+    "createdAt": "2025-05-01T20:38:56.526Z",
+    "updatedAt": "2025-05-01T20:38:56.526Z"
+  },
+  {
+    "id_empresa": 1,
+    "id_laboratorio": 3,
+    "createdAt": "2025-05-01T20:38:56.526Z",
+    "updatedAt": "2025-05-01T20:38:56.526Z"
+  },
+  {
+    "id_empresa": 1,
+    "id_laboratorio": 4,
+    "createdAt": "2025-05-01T20:38:56.526Z",
+    "updatedAt": "2025-05-01T20:38:56.526Z"
+  },
+  {
+    "id_empresa": 1,
+    "id_laboratorio": 5,
+    "createdAt": "2025-05-01T20:38:56.526Z",
+    "updatedAt": "2025-05-01T20:38:56.526Z"
+  },
+  {
+    "id_empresa": 2,
+    "id_laboratorio": 1,
+    "createdAt": "2025-05-01T21:20:37.535Z",
+    "updatedAt": "2025-05-01T21:20:37.535Z"
+  },
+  {
+    "id_empresa": 2,
+    "id_laboratorio": 2,
+    "createdAt": "2025-05-01T21:20:37.535Z",
+    "updatedAt": "2025-05-01T21:20:37.535Z"
+  },
+  {
+    "id_empresa": 2,
+    "id_laboratorio": 3,
+    "createdAt": "2025-05-01T21:20:37.535Z",
+    "updatedAt": "2025-05-01T21:20:37.535Z"
+  },
+  {
+    "id_empresa": 2,
+    "id_laboratorio": 4,
+    "createdAt": "2025-05-01T21:20:37.535Z",
+    "updatedAt": "2025-05-01T21:20:37.535Z"
+  },
+  {
+    "id_empresa": 2,
+    "id_laboratorio": 5,
+    "createdAt": "2025-05-01T21:20:37.535Z",
+    "updatedAt": "2025-05-01T21:20:37.535Z"
+  },
+  {
+    "id_empresa": 3,
+    "id_laboratorio": 1,
+    "createdAt": "2025-05-01T21:20:42.204Z",
+    "updatedAt": "2025-05-01T21:20:42.204Z"
+  },
+  {
+    "id_empresa": 3,
+    "id_laboratorio": 2,
+    "createdAt": "2025-05-01T21:20:42.204Z",
+    "updatedAt": "2025-05-01T21:20:42.204Z"
+  },
+  {
+    "id_empresa": 3,
+    "id_laboratorio": 3,
+    "createdAt": "2025-05-01T21:20:42.204Z",
+    "updatedAt": "2025-05-01T21:20:42.204Z"
+  },
+  {
+    "id_empresa": 3,
+    "id_laboratorio": 4,
+    "createdAt": "2025-05-01T21:20:42.204Z",
+    "updatedAt": "2025-05-01T21:20:42.204Z"
+  },
+  {
+    "id_empresa": 3,
+    "id_laboratorio": 5,
+    "createdAt": "2025-05-01T21:20:42.204Z",
+    "updatedAt": "2025-05-01T21:20:42.204Z"
+  },
+  {
+    "id_empresa": 4,
+    "id_laboratorio": 1,
+    "createdAt": "2025-05-01T21:20:46.511Z",
+    "updatedAt": "2025-05-01T21:20:46.511Z"
+  },
+  {
+    "id_empresa": 4,
+    "id_laboratorio": 2,
+    "createdAt": "2025-05-01T21:20:46.511Z",
+    "updatedAt": "2025-05-01T21:20:46.511Z"
+  },
+  {
+    "id_empresa": 4,
+    "id_laboratorio": 3,
+    "createdAt": "2025-05-01T21:20:46.511Z",
+    "updatedAt": "2025-05-01T21:20:46.511Z"
+  },
+  {
+    "id_empresa": 4,
+    "id_laboratorio": 4,
+    "createdAt": "2025-05-01T21:20:46.511Z",
+    "updatedAt": "2025-05-01T21:20:46.511Z"
+  },
+  {
+    "id_empresa": 4,
+    "id_laboratorio": 5,
+    "createdAt": "2025-05-01T21:20:46.511Z",
+    "updatedAt": "2025-05-01T21:20:46.511Z"
+  },
+  {
+    "id_empresa": 5,
+    "id_laboratorio": 1,
+    "createdAt": "2025-05-01T21:20:49.870Z",
+    "updatedAt": "2025-05-01T21:20:49.870Z"
+  },
+  {
+    "id_empresa": 5,
+    "id_laboratorio": 2,
+    "createdAt": "2025-05-01T21:20:49.870Z",
+    "updatedAt": "2025-05-01T21:20:49.870Z"
+  },
+  {
+    "id_empresa": 5,
+    "id_laboratorio": 3,
+    "createdAt": "2025-05-01T21:20:49.870Z",
+    "updatedAt": "2025-05-01T21:20:49.870Z"
+  },
+  {
+    "id_empresa": 5,
+    "id_laboratorio": 4,
+    "createdAt": "2025-05-01T21:20:49.870Z",
+    "updatedAt": "2025-05-01T21:20:49.870Z"
+  },
+  {
+    "id_empresa": 5,
+    "id_laboratorio": 5,
+    "createdAt": "2025-05-01T21:20:49.870Z",
+    "updatedAt": "2025-05-01T21:20:49.870Z"
+  },
+  {
+    "id_empresa": 6,
+    "id_laboratorio": 1,
+    "createdAt": "2025-05-01T21:21:48.270Z",
+    "updatedAt": "2025-05-01T21:21:48.270Z"
+  },
+  {
+    "id_empresa": 6,
+    "id_laboratorio": 2,
+    "createdAt": "2025-05-01T21:21:48.270Z",
+    "updatedAt": "2025-05-01T21:21:48.270Z"
+  },
+  {
+    "id_empresa": 6,
+    "id_laboratorio": 3,
+    "createdAt": "2025-05-01T21:21:48.270Z",
+    "updatedAt": "2025-05-01T21:21:48.270Z"
+  },
+  {
+    "id_empresa": 6,
+    "id_laboratorio": 4,
+    "createdAt": "2025-05-01T21:21:48.270Z",
+    "updatedAt": "2025-05-01T21:21:48.270Z"
+  },
+  {
+    "id_empresa": 6,
+    "id_laboratorio": 5,
+    "createdAt": "2025-05-01T21:21:48.270Z",
+    "updatedAt": "2025-05-01T21:21:48.270Z"
+  },
+  {
+    "id_empresa": 7,
+    "id_laboratorio": 1,
+    "createdAt": "2025-05-01T21:21:52.519Z",
+    "updatedAt": "2025-05-01T21:21:52.519Z"
+  },
+  {
+    "id_empresa": 7,
+    "id_laboratorio": 2,
+    "createdAt": "2025-05-01T21:21:52.519Z",
+    "updatedAt": "2025-05-01T21:21:52.519Z"
+  },
+  {
+    "id_empresa": 7,
+    "id_laboratorio": 3,
+    "createdAt": "2025-05-01T21:21:52.519Z",
+    "updatedAt": "2025-05-01T21:21:52.519Z"
+  },
+  {
+    "id_empresa": 7,
+    "id_laboratorio": 4,
+    "createdAt": "2025-05-01T21:21:52.519Z",
+    "updatedAt": "2025-05-01T21:21:52.519Z"
+  },
+  {
+    "id_empresa": 7,
+    "id_laboratorio": 5,
+    "createdAt": "2025-05-01T21:21:52.519Z",
+    "updatedAt": "2025-05-01T21:21:52.519Z"
+  }
+]

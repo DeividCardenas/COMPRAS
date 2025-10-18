@@ -1,0 +1,62 @@
+[
+  {
+    "id_empresa": 1,
+    "nombre": "EMSSANAR",
+    "createdAt": "2025-05-01T20:34:35.489Z",
+    "updatedAt": "2025-05-01T20:34:35.489Z"
+  },
+  {
+    "id_empresa": 2,
+    "nombre": "Sursalud",
+    "createdAt": "2025-05-01T20:35:08.323Z",
+    "updatedAt": "2025-05-01T20:35:08.323Z"
+  },
+  {
+    "id_empresa": 3,
+    "nombre": "Sanitas",
+    "createdAt": "2025-05-01T20:35:30.536Z",
+    "updatedAt": "2025-05-01T20:35:30.536Z"
+  },
+  {
+    "id_empresa": 4,
+    "nombre": "Nueva EPS",
+    "createdAt": "2025-05-01T20:35:36.892Z",
+    "updatedAt": "2025-05-01T20:35:36.892Z"
+  },
+  {
+    "id_empresa": 5,
+    "nombre": "Pasto Salud",
+    "createdAt": "2025-05-01T20:35:48.811Z",
+    "updatedAt": "2025-05-01T20:35:48.811Z"
+  },
+  {
+    "id_empresa": 6,
+    "nombre": "GENHOSPI",
+    "createdAt": "2025-05-01T20:44:03.818Z",
+    "updatedAt": "2025-05-01T20:44:03.818Z"
+  },
+  {
+    "id_empresa": 7,
+    "nombre": "Proinsalud",
+    "createdAt": "2025-05-01T20:44:19.042Z",
+    "updatedAt": "2025-05-01T20:44:19.042Z"
+  },
+  {
+    "id_empresa": 8,
+    "nombre": "Compañía Alpha",
+    "createdAt": "2025-10-18T02:34:04.026Z",
+    "updatedAt": "2025-10-18T02:34:04.026Z"
+  },
+  {
+    "id_empresa": 9,
+    "nombre": "Compañía Beta",
+    "createdAt": "2025-10-18T02:34:04.035Z",
+    "updatedAt": "2025-10-18T02:34:04.035Z"
+  },
+  {
+    "id_empresa": 10,
+    "nombre": "Compañía Gamma",
+    "createdAt": "2025-10-18T02:34:04.044Z",
+    "updatedAt": "2025-10-18T02:34:04.044Z"
+  }
+]

@@ -1,0 +1,56 @@
+[
+  {
+    "id_eps": 1,
+    "nombre": "Sanitas",
+    "createdAt": "2025-05-01T20:42:06.933Z",
+    "updatedAt": "2025-05-01T20:42:06.933Z"
+  },
+  {
+    "id_eps": 2,
+    "nombre": "Nueva EPS",
+    "createdAt": "2025-05-01T20:42:16.021Z",
+    "updatedAt": "2025-05-01T20:42:16.021Z"
+  },
+  {
+    "id_eps": 3,
+    "nombre": "Sur Salud",
+    "createdAt": "2025-05-01T20:42:25.735Z",
+    "updatedAt": "2025-05-01T20:42:25.735Z"
+  },
+  {
+    "id_eps": 4,
+    "nombre": "Vida IPS",
+    "createdAt": "2025-05-01T20:42:41.530Z",
+    "updatedAt": "2025-05-01T20:42:41.530Z"
+  },
+  {
+    "id_eps": 5,
+    "nombre": "Los Angeles IPS",
+    "createdAt": "2025-05-01T20:42:59.391Z",
+    "updatedAt": "2025-05-01T20:42:59.391Z"
+  },
+  {
+    "id_eps": 6,
+    "nombre": "EMSSANAR",
+    "createdAt": "2025-05-01T20:43:16.721Z",
+    "updatedAt": "2025-05-01T20:43:16.721Z"
+  },
+  {
+    "id_eps": 7,
+    "nombre": "PROINSALUD",
+    "createdAt": "2025-05-17T23:41:38.096Z",
+    "updatedAt": "2025-05-17T23:41:38.096Z"
+  },
+  {
+    "id_eps": 8,
+    "nombre": "EPS Salud",
+    "createdAt": "2025-10-18T02:34:04.053Z",
+    "updatedAt": "2025-10-18T02:34:04.053Z"
+  },
+  {
+    "id_eps": 9,
+    "nombre": "EPS Bienestar",
+    "createdAt": "2025-10-18T02:34:04.060Z",
+    "updatedAt": "2025-10-18T02:34:04.060Z"
+  }
+]
